@@ -22,7 +22,7 @@ Each skill can be installed individually. See the `INSTALL.md` in each skill dir
 
 ```bash
 # Clone the repository
-git clone https://github.com/tropMusic/skills-hub.git
+git clone https://github.com/PSthelyBlog/skills-hub.git
 
 # Install a specific skill (example: brainstorm)
 cat skills-hub/brainstorm/INSTALL.md
