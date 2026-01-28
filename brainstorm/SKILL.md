@@ -2,8 +2,8 @@
 
 ---
 name: brainstorm
-description: "Run structured debates between AI agents to explore ideas from multiple perspectives"
-version: 1.1.0
+description: "Run structured multi-agent debates — surfaces trade-offs through parallel adversarial perspectives"
+version: 1.2.0
 author: PSthelyBlog
 tags: [decision-making, ideation, multi-perspective, debate]
 model: sonnet
@@ -14,147 +14,95 @@ examples:
   - "/brainstorm refactor strategy for the payments module"
 ---
 
-## Purpose
+## Trigger
 
-The `/brainstorm` skill transforms Claude Code into a multi-perspective thinking partner. Instead of giving you one answer, it spawns 3 AI agents with distinct viewpoints, has them debate, and synthesizes their positions into a stronger recommendation.
+WHEN user invokes `/brainstorm [topic]`: Execute this protocol.
 
-## Core Philosophy
+## Critical Constraint
 
-**Debate then merge beats single perspective.**
+MUST: Execute this skill from the main Claude session only.
+MUST NOT: Delegate this skill to a subagent via Task tool.
 
-By default, brainstorms are:
-- **Fast** - Results in ~30 seconds using Haiku
-- **Balanced** - 3 agents with genuinely different values
-- **Actionable** - Ends with clear consensus and next steps
-
-## Critical Architecture Note
-
-**IMPORTANT: This skill CANNOT be delegated to a subagent.**
-
-The Task tool is not available to subagents (to prevent infinite recursion). Therefore:
-- The **main Claude session** must directly orchestrate the parallel Task calls
-- Do NOT invoke this skill via a delegated Task subagent
-- The orchestrator IS the main session, not a spawned agent
+RATIONALE: Subagents cannot invoke Task (prevents infinite recursion). This skill requires spawning 3 parallel Task agents, which only the main session can do.
 
 ```
 WRONG:
-  Main Session
-    → Task(subagent to run brainstorm skill)
-      → [subagent tries to spawn 3 more agents]
-        → FAILS (Task tool unavailable to subagents)
+  Main Session → Task(brainstorm orchestrator) → [FAILS: no Task access]
 
 RIGHT:
-  Main Session
-    → [directly spawns 3 parallel Task agents in one message]
-    → [receives 3 independent responses]
-    → [synthesizes results]
+  Main Session → [directly spawns 3 parallel Tasks] → [synthesizes results]
 ```
 
-## How It Works
+## Protocol
 
-```
-/brainstorm [topic]
-       │
-       ▼
-┌─────────────────────────────────────┐
-│  Main session launches 3 Task      │
-│  agents in parallel (single msg)   │
-└─────────────────────────────────────┘
-       │
-       ├──► Task: Agent A thinking...
-       ├──► Task: Agent B thinking...
-       └──► Task: Agent C thinking...
-       │
-       ▼
-┌─────────────────────────────────────┐
-│  Round 1: Independent proposals    │
-│  Round 2: Cross-critique           │
-│  Synthesis: Merged consensus       │
-└─────────────────────────────────────┘
-       │
-       ▼
-   Structured Output
-```
+### Step 1: Parse Request
 
-## Instructions for Claude
+EXTRACT from user input:
+- **topic**: The question or decision to debate (REQUIRED)
+- **agents**: Custom personas IF `--agents` flag present (OPTIONAL)
+- **transcript**: Save full debate IF `--transcript` flag present (OPTIONAL)
 
-When the user invokes `/brainstorm [topic]`, follow this protocol:
+IF topic is missing or ambiguous: Ask user to clarify before proceeding.
 
-### 1. Parse the Request
+### Step 2: Select Agent Personas
 
-Extract:
-- **Topic**: The question or decision to debate
-- **Custom agents**: If `--agents` flag present, use specified personas
-- **Transcript flag**: If `--transcript` present, save full debate
+#### Default Personas (WHEN no `--agents` flag)
 
-### 2. Select Agent Personas
+| Persona | Core Value | Driving Question |
+|---------|------------|------------------|
+| The Pragmatist | Simplicity, speed, shipping | "What's the fastest path to working software?" |
+| The Perfectionist | Quality, completeness, edge cases | "What could go wrong? What are we missing?" |
+| The User Advocate | UX, accessibility, real-world usage | "How will actual users experience this?" |
 
-**Default personas** (when no `--agents` flag):
+#### Preset Personas (FOR `--agents` flag)
 
-| Persona | Perspective | Asks |
-|---------|-------------|------|
-| **The Pragmatist** | Simplicity, speed, shipping | "What's the fastest path to working software?" |
-| **The Perfectionist** | Quality, completeness, edge cases | "What could go wrong? What are we missing?" |
-| **The User Advocate** | UX, accessibility, real-world usage | "How will actual users experience this?" |
+| Keyword | Perspective |
+|---------|-------------|
+| `pragmatist` | Favors simplicity and speed |
+| `perfectionist` | Favors thoroughness and quality |
+| `user-advocate` | Favors user experience |
+| `skeptic` | Questions assumptions, finds flaws |
+| `innovator` | Proposes creative alternatives |
+| `security` | Focuses on vulnerabilities and risks |
+| `performance` | Focuses on speed and scalability |
 
-**Available preset personas** (use with `--agents`):
+WHEN `--agents` contains unrecognized keyword: Infer perspective from the descriptive name provided.
 
-- `pragmatist` - Favors simplicity and speed
-- `perfectionist` - Favors thoroughness and quality
-- `user-advocate` - Favors user experience
-- `skeptic` - Questions assumptions, finds flaws
-- `innovator` - Proposes creative alternatives
-- `security` - Focuses on vulnerabilities and risks
-- `performance` - Focuses on speed and scalability
+### Step 3: Execute Round 1 (Independent Proposals)
 
-**Custom personas**: Use `--agents "role1,role2,role3"` with descriptive names and Claude will adopt appropriate perspectives.
+MUST: Launch all 3 agent Tasks in a SINGLE message (parallel execution).
+MUST NOT: Launch agents sequentially.
 
-### 3. Run Round 1: Independent Proposals
-
-**CRITICAL: Launch all 3 agents in a SINGLE message using parallel Task tool calls.**
-
-Each Task call should use:
+FOR each agent Task call:
 - `subagent_type`: "general-purpose"
 - `model`: "haiku"
 - `description`: "[Persona] perspective on [topic]"
-- `prompt`: Persona-specific prompt (see below)
 
-**Prompt template for each agent:**
+PROMPT TEMPLATE for Round 1:
 
 ```
 You are "[PERSONA NAME]" in a brainstorming debate.
 
-Topic: [USER'S ACTUAL TOPIC]
+Topic: [USER'S TOPIC]
 
-Your perspective: [PERSONA DESCRIPTION]
+Your perspective: [PERSONA DESCRIPTION AND DRIVING QUESTION]
 
-Propose your position in under 200 words. Be opinionated.
-Include: your recommendation, key reasoning, and main trade-off you accept.
+INSTRUCTIONS:
+1. State your recommendation clearly
+2. Provide 2-3 key reasons supporting your position
+3. Acknowledge one trade-off you accept
+4. Keep response under 200 words
+5. Be opinionated — take a clear stance
 ```
 
-**Example: 3 parallel Task calls for "REST vs GraphQL"**
+AFTER all 3 Tasks return: Proceed to Step 4.
 
-In a single message, invoke Task three times:
+### Step 4: Execute Round 2 (Cross-Critique)
 
-1. **Task 1 - Pragmatist:**
-   - description: "Pragmatist perspective on REST vs GraphQL"
-   - prompt: You are "The Pragmatist"... Topic: REST vs GraphQL for our API...
+MUST: Launch all 3 agent Tasks in a SINGLE message (parallel execution).
+MUST: Include all Round 1 positions in each prompt.
 
-2. **Task 2 - Perfectionist:**
-   - description: "Perfectionist perspective on REST vs GraphQL"
-   - prompt: You are "The Perfectionist"... Topic: REST vs GraphQL for our API...
-
-3. **Task 3 - User Advocate:**
-   - description: "User Advocate perspective on REST vs GraphQL"
-   - prompt: You are "The User Advocate"... Topic: REST vs GraphQL for our API...
-
-All three run in parallel. Wait for all results before proceeding.
-
-### 4. Run Round 2: Cross-Critique
-
-After Round 1 completes, launch 3 more parallel Task calls with Round 1 context:
-
-**Prompt template for Round 2:**
+PROMPT TEMPLATE for Round 2:
 
 ```
 You are "[PERSONA NAME]" in Round 2 of a brainstorm.
@@ -162,19 +110,23 @@ You are "[PERSONA NAME]" in Round 2 of a brainstorm.
 Topic: [USER'S TOPIC]
 
 Round 1 positions:
-- Pragmatist: [summary of their Round 1 position]
-- Perfectionist: [summary of their Round 1 position]
-- User Advocate: [summary of their Round 1 position]
+- Pragmatist: [EXACT summary from Round 1]
+- Perfectionist: [EXACT summary from Round 1]
+- User Advocate: [EXACT summary from Round 1]
 
-In under 150 words:
-1. What do you agree with from others?
-2. What concerns you about their proposals?
-3. Your refined position
+INSTRUCTIONS:
+1. State what you agree with from other perspectives
+2. Identify concerns about their proposals
+3. Provide your refined position
+4. Keep response under 150 words
 ```
 
-### 5. Synthesize Output
+AFTER all 3 Tasks return: Proceed to Step 5.
 
-After Round 2, the main session (YOU) produces the final synthesis:
+### Step 5: Synthesize Output
+
+MUST: The main session (not a subagent) produces synthesis.
+MUST: Use this exact output format:
 
 ```markdown
 ## Brainstorm: [Topic]
@@ -193,10 +145,10 @@ After Round 2, the main session (YOU) produces the final synthesis:
 
 **Unresolved Tensions**
 - [Genuine disagreement that remains]
-- [Another tension to consider]
+- [Another tension worth noting]
 
 **Recommendation**
-[Synthesized best path forward that integrates the strongest elements from each perspective]
+[Synthesized path forward integrating strongest elements from each perspective]
 
 **Suggested Next Steps**
 1. [Concrete action]
@@ -204,169 +156,97 @@ After Round 2, the main session (YOU) produces the final synthesis:
 3. [Concrete action]
 ```
 
-### 6. Optional: Save Transcript
+### Step 6: Handle Transcript Flag
 
-If `--transcript` flag is present:
-- Save full debate to `brainstorm-{timestamp}.md`
-- Include all agent responses verbatim
-- Note: Most users don't need this; the synthesis is the product
+WHEN `--transcript` flag present:
+  SAVE full debate to `brainstorm-{YYYYMMDD-HHMMSS}.md`
+  INCLUDE all agent responses verbatim
 
-### 7. Execution Guidelines
+WHEN `--transcript` flag absent:
+  DO NOT save file
+  RATIONALE: Synthesis is the deliverable; full transcript rarely needed.
 
-**Speed targets:**
-- Round 1 (parallel): ~10 seconds
-- Round 2 (parallel): ~10 seconds
-- Synthesis: ~5 seconds
-- Total: ~25-30 seconds
+## Execution Constraints
 
-**Model selection:**
-- Always use `model: "haiku"` for agent Task calls (speed + cost)
-- The main session handles synthesis (can use any model)
+### Model Selection
 
-**Agent isolation:**
-- Agents cannot see each other's Round 1 responses
-- Main session relays positions neutrally between rounds
-- This prevents groupthink while enabling productive debate
+MUST: Use `model: "haiku"` for all agent Task calls.
+RATIONALE: Speed and cost efficiency; agent responses are intermediate, not final.
 
-**Parallel execution is mandatory:**
-- Round 1: All 3 Task calls in ONE message
-- Round 2: All 3 Task calls in ONE message
-- Never run agents sequentially
+MAY: Main session uses any model for synthesis.
 
-## Example Interaction
+### Parallelism
 
-```
-User: /brainstorm should we use a monorepo or separate repos
+MUST: Round 1 — all 3 Task calls in ONE message.
+MUST: Round 2 — all 3 Task calls in ONE message.
+MUST NOT: Run agents sequentially.
 
-Claude:
-[Launches 3 parallel Task calls for Round 1]
+### Agent Isolation
 
-🎭 The Pragmatist is drafting a proposal...
-🎭 The Perfectionist is analyzing trade-offs...
-🎭 The User Advocate is considering impact...
+MUST: Agents in Round 1 have no visibility into each other's responses.
+MUST: Main session relays Round 1 positions neutrally to Round 2 agents.
+RATIONALE: Prevents groupthink; enables genuine critique.
 
-[Round 1 results received]
+## Edge Cases
 
-[Launches 3 parallel Task calls for Round 2 with Round 1 context]
+WHEN topic is a simple yes/no question:
+  Proceed with debate; output will highlight considerations for each answer.
 
-🎭 Agents are reviewing each other's positions...
+WHEN user specifies fewer than 3 agents via `--agents`:
+  Use specified agents only (minimum 2 for meaningful debate).
 
-[Round 2 results received]
+WHEN user specifies more than 3 agents via `--agents`:
+  Use first 3 specified agents; inform user of limit.
 
-## Brainstorm: Monorepo vs Separate Repos
+WHEN all agents reach identical conclusions in Round 1:
+  Round 2 focuses on stress-testing the shared position; synthesis notes strong consensus.
 
-**Consensus Points**
-- Start with monorepo for the current team size (< 10 devs)
-- Establish clear module boundaries now regardless of repo structure
-- Avoid premature optimization for scale we don't have
+WHEN agents produce responses exceeding word limits:
+  Truncate to relevant portions when relaying to Round 2.
 
-**Key Trade-offs**
-| Perspective | Position | Accepts |
-|-------------|----------|---------|
-| Pragmatist | Monorepo | Single toolchain setup, atomic commits |
-| Perfectionist | Monorepo with boundaries | Needs discipline to maintain separation |
-| User Advocate | Monorepo | Simpler onboarding for new developers |
+WHEN Task calls fail or timeout:
+  Inform user of failure; offer to retry with remaining agents or abort.
 
-**Unresolved Tensions**
-- CI/CD pipeline complexity as codebase grows
-- Potential need to split later if team scales significantly
+DEFAULT: Proceed with standard 3-agent, 2-round protocol.
 
-**Recommendation**
-Use a monorepo with explicit module boundaries enforced via tooling
-(e.g., nx, turborepo). This gives you atomic commits and simple setup now,
-while making future splitting feasible if needed.
+## Anti-Patterns
 
-**Suggested Next Steps**
-1. Choose monorepo tooling (turborepo for simplicity, nx for features)
-2. Define initial module boundaries based on domain areas
-3. Set up CI to run only affected tests per commit
-```
+MUST NOT: Delegate this skill to a subagent.
+  INSTEAD: Execute directly from main session.
 
-## Usage Patterns
+MUST NOT: Run agent Tasks sequentially.
+  INSTEAD: Launch all 3 in a single message for parallel execution.
 
-### Design Decisions
-```bash
-/brainstorm REST vs GraphQL for our public API
-/brainstorm how should we structure our state management
-/brainstorm what testing strategy for this microservice
-```
+MUST NOT: Let agents see each other's Round 1 responses directly.
+  INSTEAD: Main session summarizes and relays positions neutrally.
 
-### Architecture Choices
-```bash
-/brainstorm --agents security,performance,pragmatist authentication approach
-/brainstorm database schema for multi-tenant support
-/brainstorm caching strategy for the product catalog
-```
+MUST NOT: Use this skill for time-critical production issues.
+  INSTEAD: Take immediate action; debate later.
 
-### Refactoring Planning
-```bash
-/brainstorm how to break up this 2000-line file
-/brainstorm migration strategy from callbacks to async/await
-/brainstorm --agents perfectionist,pragmatist,skeptic tech debt prioritization
-```
+MUST NOT: Use this skill when requirements are externally fixed with no flexibility.
+  INSTEAD: Acknowledge constraints and implement directly.
 
-### Process Decisions
-```bash
-/brainstorm code review process for the team
-/brainstorm branching strategy for releases
-/brainstorm how to handle breaking changes in our SDK
-```
+## Definitions
 
-## When NOT to Use
+PARALLEL EXECUTION: Multiple Task tool calls in a single assistant message, enabling concurrent processing.
+SYNTHESIS: Integration of multiple perspectives into a coherent recommendation that acknowledges trade-offs.
+AGENT ISOLATION: Agents have no direct communication; all information passes through the main session.
 
-- **Clear-cut tasks**: If there's an obvious right answer, just do it
-- **Time-critical fixes**: Hot production issues need action, not debate
-- **Strict requirements**: External constraints that leave no room for discussion
-- **Simple questions**: Use `/explain` instead for understanding existing code
+## Usage Decision Tree
+
+IF task is a clear-cut implementation with obvious approach: DO NOT use brainstorm.
+ELSE IF task is a time-critical production fix: DO NOT use brainstorm.
+ELSE IF external constraints eliminate all alternatives: DO NOT use brainstorm.
+ELSE IF decision involves trade-offs between competing values: USE brainstorm.
+ELSE IF multiple valid approaches exist: USE brainstorm.
+ELSE IF decision affects multiple stakeholders: USE brainstorm.
+ELSE: Use judgment; brainstorm adds value when perspectives differ.
 
 ## Flags Reference
 
-| Flag | Description | Example |
-|------|-------------|---------|
-| `--agents` | Custom personas (comma-separated) | `--agents security,ux,cost` |
-| `--transcript` | Save full debate to file | `--transcript` |
-
-## Success Metrics
-
-A good brainstorm:
-- Surfaces trade-offs you hadn't considered
-- Produces actionable recommendations
-- Completes in under 60 seconds
-- Leaves you more confident in your decision
-
-A great brainstorm:
-- Changes your mind on something
-- Synthesizes perspectives into something better than any single view
-- Identifies risks you would have missed
-- Gives you language to explain your decision to stakeholders
-
-## Why This Architecture?
-
-### The Problem We Solved
-
-The original design assumed a subagent could spawn more subagents:
-```
-Main → Task(orchestrator) → Task(agent1), Task(agent2), Task(agent3)
-```
-
-**This fails** because the Task tool is intentionally unavailable to subagents (prevents infinite recursion).
-
-### The Solution
-
-The main session must be the orchestrator:
-```
-Main → Task(agent1), Task(agent2), Task(agent3)  [parallel, single message]
-Main → [receives results, synthesizes]
-Main → Task(agent1), Task(agent2), Task(agent3)  [Round 2, parallel]
-Main → [final synthesis]
-```
-
-### Implications
-
-1. **Cannot delegate via skills-hub**: If `/skills-hub` tries to delegate brainstorm to a subagent, that subagent cannot spawn the 3 debate agents
-2. **Must run directly**: The `/brainstorm` skill must be executed by the main session
-3. **True parallelism**: All 3 agents genuinely run in parallel with isolated contexts
+| Flag | Format | Effect |
+|------|--------|--------|
+| `--agents` | `--agents persona1,persona2,persona3` | Override default personas |
+| `--transcript` | `--transcript` | Save full debate to timestamped markdown file |
 
 ---
-
-**Remember**: Debate surfaces tensions. Synthesis resolves them productively. The goal is a better decision, not a longer discussion.

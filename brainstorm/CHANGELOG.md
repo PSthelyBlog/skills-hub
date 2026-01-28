@@ -5,6 +5,26 @@ All notable changes to the **brainstorm** skill will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2025-01-28
+
+### Changed
+- Rewrote SKILL.md using write-for-claude optimization protocol
+- Replaced suggestions with MUST/SHOULD/MAY directives
+- Converted prose explanations to structured directive format
+- Added explicit WHEN/FOR/IF triggers to all directives
+
+### Added
+- Usage Decision Tree with IF/ELSE structure
+- Anti-Patterns section with INSTEAD alternatives
+- Definitions section (PARALLEL EXECUTION, SYNTHESIS, AGENT ISOLATION)
+- Edge Cases section with DEFAULT fallback
+
+### Removed
+- Time estimates (per no-time-estimates principle)
+- Hedge words (generally, might, try to)
+- Narrative prose and flowchart diagrams
+- Example interaction section
+
 ## [1.1.0] - 2025-01-28
 
 ### Changed
