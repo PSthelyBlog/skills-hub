@@ -1,0 +1,155 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                         /GROUNDED SKILL - QUICK START                        ║
+║                       Production-Ready for Claude Code                       ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+📦 INSTALLATION
+─────────────────────────────────────────────────────────────────────────────
+  cp -r grounded ~/.claude/skills/
+
+
+🚀 BASIC USAGE
+─────────────────────────────────────────────────────────────────────────────
+  /grounded create a Next.js app with auth        # Verifies current APIs
+  /grounded what are current GDPR requirements    # Verifies regulations
+  /grounded explain the quicksort algorithm       # Trusts stable knowledge
+
+
+⚡ HOW IT WORKS
+─────────────────────────────────────────────────────────────────────────────
+  1. Analyze query for volatility signals
+  2. Classify knowledge needs (verify vs. trust)
+  3. Execute verification for volatile topics
+  4. Show Knowledge Assessment reasoning
+  5. Synthesize response with confidence notes
+
+
+📊 KNOWLEDGE VOLATILITY SPECTRUM
+─────────────────────────────────────────────────────────────────────────────
+  STABLE                                                          VOLATILE
+  ◄─────────────────────────────────────────────────────────────────────►
+
+  Math        Core CS       Established      Evolving        Current
+  Logic       Algorithms    Standards        Best Practices  Events
+  History     Language      Classic          Active          News
+  Philosophy  Fundamentals  Literature       Research        Releases
+
+
+🔍 WHEN TO VERIFY (HIGH VOLATILITY)
+─────────────────────────────────────────────────────────────────────────────
+  Current events      │  "latest," "current," dates, news
+  Technology          │  Versions, APIs, setup, configuration
+  Regulations         │  Laws, compliance, requirements
+  Science/Medicine    │  Guidelines, recommendations, protocols
+  Products/Services   │  Pricing, features, availability
+  Standards           │  Specifications, protocols, RFCs
+
+
+✓ WHEN TO TRUST (HIGH STABILITY)
+─────────────────────────────────────────────────────────────────────────────
+  Mathematics         │  Proofs, theorems, formulas
+  Core CS             │  Algorithms, data structures, complexity
+  History             │  Past events, established facts
+  Philosophy          │  Ethical frameworks, logical reasoning
+  Language            │  Grammar, core syntax
+  Physics/Chemistry   │  Laws, periodic table, mechanics
+
+
+📋 OUTPUT FORMAT
+─────────────────────────────────────────────────────────────────────────────
+  ## Knowledge Assessment
+
+  **Verified (volatile/time-sensitive):**
+  - [What was looked up and why]
+
+  **Trusted training (stable knowledge):**
+  - [What was used from training and why]
+
+  **Confidence notes:**
+  - [Any remaining uncertainties]
+
+  [Synthesized response...]
+
+
+🛠️ TOOLS USED
+─────────────────────────────────────────────────────────────────────────────
+  Context7     │  Technology documentation (preferred for code)
+  WebSearch    │  General current information, news
+  WebFetch     │  Specific authoritative sources
+
+
+🎯 USE CASES
+─────────────────────────────────────────────────────────────────────────────
+  Technology setup    →  /grounded configure AWS Lambda with Node 20
+  Regulations         →  /grounded GDPR cookie consent requirements
+  Medical info        →  /grounded current treatment for Type 2 diabetes
+  Current events      →  /grounded latest EU AI Act developments
+  Mixed queries       →  /grounded neural networks + latest architectures
+
+
+⚠️ HIGH-STAKES QUERIES
+─────────────────────────────────────────────────────────────────────────────
+  For medical, legal, financial queries:
+  - Verification is mandatory
+  - Disclaimers are added automatically
+  - Authoritative sources are provided
+  - Users directed to qualified professionals
+
+
+🛠️ TROUBLESHOOTING
+─────────────────────────────────────────────────────────────────────────────
+  Skill not found?    →  Check: ls ~/.claude/skills/grounded/SKILL.md
+  No verification?    →  Add volatility signals: "latest," "current," year
+  Slow responses?     →  Verification takes time for accuracy
+
+
+📚 DOCUMENTATION
+─────────────────────────────────────────────────────────────────────────────
+  README.md        →  Feature overview and usage guide
+  EXAMPLES.md      →  5 real-world scenarios
+  SKILL.md         →  Complete specification (for Claude)
+  DESIGN.md        →  Design rationale and synthesis process
+  INSTALL.md       →  Installation and troubleshooting
+
+
+💡 THE FIVE QUESTIONS
+─────────────────────────────────────────────────────────────────────────────
+  Before responding, Claude asks:
+
+  1. Could this have changed since training?     → If yes, verify
+  2. Is this a volatile domain?                  → Tech, regs, science → verify
+  3. Are there volatility signals?               → "latest," versions → verify
+  4. Is this timeless knowledge?                 → Math, history → trust
+  5. Am I uncertain?                             → When in doubt, verify
+
+
+🏆 SUCCESS METRICS
+─────────────────────────────────────────────────────────────────────────────
+  Good grounded response:
+  - Correctly identifies volatile vs. stable knowledge
+  - Shows clear reasoning in Knowledge Assessment
+  - Points to authoritative sources when appropriate
+
+  Great grounded response:
+  - Catches outdated training knowledge before stating it
+  - Efficiently trusts stable knowledge without over-verifying
+  - User understands exactly what was verified and why
+
+
+📊 THE META-PRINCIPLE
+─────────────────────────────────────────────────────────────────────────────
+  Calibrated confidence beats false certainty.
+
+  Better to say "let me check" for something that might have changed
+  than to confidently provide outdated information.
+
+  But also: don't waste time checking things that don't change.
+
+  The skill is knowing the difference.
+
+
+═══════════════════════════════════════════════════════════════════════════════
+
+  Ready to use! Type:  /grounded [your query]
+
+═══════════════════════════════════════════════════════════════════════════════

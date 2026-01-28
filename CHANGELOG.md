@@ -1,0 +1,49 @@
+# Skills Hub Changelog
+
+All notable changes to the **skills-hub** repository will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [1.1.0] - 2025-01-28
+
+### Added
+- **grounded**: DESIGN.md, DELIVERABLES.md, QUICKSTART.txt (completing documentation set)
+- **write-for-claude**: DESIGN.md, DELIVERABLES.md, QUICKSTART.txt (completing documentation set)
+- CHANGELOG.md files for all skills
+- Root CHANGELOG.md for repository-wide changes
+
+### Changed
+- Updated author from "Multi-Agent Synthesis" to "PSthelyBlog" across all skills
+- Standardized all skills to version 1.1.0
+- Updated root README.md architecture section to include all documentation files
+
+### Fixed
+- Documentation consistency: all skills now have complete file sets
+- Version consistency: all skills now at 1.1.0
+
+## [1.0.0] - 2025-01-01
+
+### Added
+- Initial release of skills-hub repository
+- **brainstorm**: Multi-agent deliberation skill
+- **explain**: Code explanation skill with progressive depth
+- **grounded**: Epistemic calibration skill
+- **skills-hub**: Meta-skill for routing and orchestration
+- **suggest**: Code improvement suggestions skill
+- **update**: Code modernization skill
+- **write-for-claude**: Claude-optimized content generation skill
+
+---
+
+## Individual Skill Changelogs
+
+Each skill maintains its own changelog:
+
+- [brainstorm/CHANGELOG.md](./brainstorm/CHANGELOG.md)
+- [explain/CHANGELOG.md](./explain/CHANGELOG.md)
+- [grounded/CHANGELOG.md](./grounded/CHANGELOG.md)
+- [skills-hub/CHANGELOG.md](./skills-hub/CHANGELOG.md)
+- [suggest/CHANGELOG.md](./suggest/CHANGELOG.md)
+- [update/CHANGELOG.md](./update/CHANGELOG.md)
+- [write-for-claude/CHANGELOG.md](./write-for-claude/CHANGELOG.md)

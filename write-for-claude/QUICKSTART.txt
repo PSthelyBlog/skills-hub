@@ -1,0 +1,185 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                     /WRITE-FOR-CLAUDE SKILL - QUICK START                    ║
+║                       Production-Ready for Claude Code                       ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+📦 INSTALLATION
+─────────────────────────────────────────────────────────────────────────────
+  cp -r write-for-claude ~/.claude/skills/
+
+
+🚀 BASIC USAGE
+─────────────────────────────────────────────────────────────────────────────
+  /write-for-claude create a CLAUDE.md for this project
+  /write-for-claude draft an AGENTS.md for code review workflow
+  /write-for-claude write a skill spec for automated testing
+  /write-for-claude convert these notes into Claude instructions
+
+
+⚡ HOW IT WORKS
+─────────────────────────────────────────────────────────────────────────────
+  1. Classify output type (CLAUDE.md, SKILL.md, AGENTS.md, Prompt)
+  2. Transform vague language → explicit directives
+  3. Add triggers (WHEN/IF/FOR) to all directives
+  4. Define ambiguous terms with measurable criteria
+  5. Create decision trees with ELSE/DEFAULT clauses
+  6. Validate against "identical behavior" test
+  7. Return document with optimization report
+
+
+📊 OUTPUT TYPES
+─────────────────────────────────────────────────────────────────────────────
+  CLAUDE.md    │  Project instructions for Claude Code
+  SKILL.md     │  Skill specifications with frontmatter
+  AGENTS.md    │  Multi-agent workflow definitions
+  Prompt       │  One-off optimized instructions
+  Conversion   │  Transform existing docs with changelog
+
+
+🏷️ PRIORITY MARKERS
+─────────────────────────────────────────────────────────────────────────────
+  MUST         │  Non-negotiable. Violations are errors.
+  SHOULD       │  Strong preference. Override requires justification.
+  MAY          │  Optional. Include when beneficial.
+  MUST NOT     │  Prohibited. Always include INSTEAD action.
+
+
+🔄 LANGUAGE TRANSFORMATIONS
+─────────────────────────────────────────────────────────────────────────────
+  "Consider doing X"       →  MUST: Do X when [condition]
+  "Try to X"               →  SHOULD: X
+  "You might want to X"    →  MAY: X when [condition]
+  "It's important to X"    →  MUST: X
+  "Generally, X"           →  SHOULD: X unless [exception]
+  "Avoid X"                →  MUST NOT: X. INSTEAD: [action]
+  "Handle appropriately"   →  [Enumerate each case with handling]
+
+
+⚠️ HEDGE WORDS (ELIMINATED)
+─────────────────────────────────────────────────────────────────────────────
+  NEVER use in output:
+  - might, could, may (as uncertainty)
+  - generally, usually, often, sometimes
+  - probably, likely, perhaps, maybe
+  - fairly, somewhat, relatively
+  - try to, consider, think about
+
+  REPLACE WITH: always, never, WHEN [condition], IF [condition]
+
+
+📋 DECISION TREE FORMAT
+─────────────────────────────────────────────────────────────────────────────
+  WRONG:
+    Use your judgment about when to add tests.
+
+  RIGHT:
+    IF function handles user input: MUST write test
+    ELSE IF function has >3 branches: MUST write test
+    ELSE IF function calls external API: MUST write test
+    ELSE IF function is public export: SHOULD write test
+    ELSE: MAY write test
+
+
+📖 DEFINITIONS SECTION
+─────────────────────────────────────────────────────────────────────────────
+  WRONG:
+    Keep code clean and maintainable.
+
+  RIGHT:
+    ## Definitions
+
+    CLEAN CODE: Functions <40 lines, single responsibility, no duplication >3 lines
+    MAINTAINABLE: >80% test coverage, documented public APIs, typed parameters
+
+
+✅ VALIDATION CHECKLIST
+─────────────────────────────────────────────────────────────────────────────
+  Before output is returned:
+  - [ ] Every MUST/SHOULD/MAY has trigger (WHEN/IF/FOR) or universal scope
+  - [ ] Zero hedge words present
+  - [ ] Every MUST NOT has INSTEAD action
+  - [ ] Definitions section for ambiguous terms
+  - [ ] Decision trees have ELSE/DEFAULT
+  - [ ] Examples show edge cases, not only happy paths
+
+
+🎯 THE VALIDATION TEST
+─────────────────────────────────────────────────────────────────────────────
+  Could another Claude session, reading ONLY this output
+  (no prior context), produce identical behavior?
+
+  IF yes: Output passes
+  IF no: Identify ambiguity, make explicit, re-validate
+
+
+📊 OUTPUT FORMAT
+─────────────────────────────────────────────────────────────────────────────
+  [Generated document...]
+
+  ---
+
+  ## Optimization Applied
+
+  CONVERTED TO EXPLICIT:
+  - [vague term] → [specific criteria]
+
+  ADDED TRIGGERS:
+  - [directive] now specifies WHEN [condition]
+
+  DEFINED TERMS:
+  - [term]: [definition added]
+
+
+🛠️ TROUBLESHOOTING
+─────────────────────────────────────────────────────────────────────────────
+  Skill not found?     →  Check: ls ~/.claude/skills/write-for-claude/SKILL.md
+  Wrong output type?   →  Specify: "create a CLAUDE.md" or "write a SKILL.md"
+  Missing sections?    →  Provide more context about your project/use case
+
+
+📚 DOCUMENTATION
+─────────────────────────────────────────────────────────────────────────────
+  README.md        →  Feature overview and usage guide
+  EXAMPLES.md      →  5 real-world scenarios
+  SKILL.md         →  Complete specification (for Claude)
+  DESIGN.md        →  Design rationale and synthesis process
+  INSTALL.md       →  Installation and troubleshooting
+
+
+💡 TIPS
+─────────────────────────────────────────────────────────────────────────────
+  • Be specific about output type: "CLAUDE.md for a React project"
+  • Provide context: mention tech stack, team size, constraints
+  • For conversions: paste the original text to transform
+  • Review the "Optimization Applied" section to learn patterns
+
+
+🏆 SUCCESS METRICS
+─────────────────────────────────────────────────────────────────────────────
+  Good output:
+  - Uses MUST/SHOULD/MAY consistently
+  - Has explicit triggers on all directives
+  - Defines ambiguous terms
+
+  Great output:
+  - Passes "identical behavior" test
+  - Comprehensive decision trees
+  - User learns Claude-optimization principles
+
+
+📊 THE CORE PRINCIPLE
+─────────────────────────────────────────────────────────────────────────────
+  Unambiguous instructions produce consistent behavior.
+
+  Two different Claude sessions reading the same CLAUDE.md
+  should behave identically.
+
+  This skill transforms vague prose into structured instructions
+  that pass that test.
+
+
+═══════════════════════════════════════════════════════════════════════════════
+
+  Ready to use! Type:  /write-for-claude [your task]
+
+═══════════════════════════════════════════════════════════════════════════════

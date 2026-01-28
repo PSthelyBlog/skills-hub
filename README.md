@@ -58,11 +58,14 @@ Each skill follows a consistent structure:
 
 ```
 skill-name/
-├── SKILL.md        # Main skill instructions
-├── DESIGN.md       # Design rationale
-├── EXAMPLES.md     # Usage examples
-├── INSTALL.md      # Installation guide
-└── LICENSE         # MIT License
+├── SKILL.md          # Main skill instructions (for Claude)
+├── DESIGN.md         # Design rationale and decisions
+├── EXAMPLES.md       # Real-world usage examples
+├── INSTALL.md        # Installation guide
+├── DELIVERABLES.md   # Summary of deliverables
+├── QUICKSTART.txt    # Quick reference card
+├── CHANGELOG.md      # Version history
+└── LICENSE           # MIT License
 ```
 
 ## License

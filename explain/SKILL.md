@@ -3,8 +3,8 @@
 ---
 name: explain
 description: "Understand what's happening in your codebase - from quick answers to deep dives"
-version: 1.0.0
-author: Multi-Agent Synthesis
+version: 1.1.0
+author: PSthelyBlog
 tags: [learning, documentation, codebase-understanding]
 model: haiku
 examples:

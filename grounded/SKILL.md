@@ -3,8 +3,8 @@
 ---
 name: grounded
 description: "Epistemic calibration — knowing when to verify vs. trust training knowledge"
-version: 1.0.0
-author: Multi-Agent Synthesis
+version: 1.1.0
+author: PSthelyBlog
 tags: [knowledge, verification, accuracy, current-information, metacognition]
 model: sonnet
 examples:

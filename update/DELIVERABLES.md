@@ -121,8 +121,8 @@ Standard MIT license for open source distribution.
 ```yaml
 name: update
 description: "Modernize code using fresh documentation to overcome AI training cutoffs"
-version: 1.0.0
-author: Multi-Agent Synthesis
+version: 1.1.0
+author: PSthelyBlog
 tags: [modernization, libraries, documentation, migration]
 model: sonnet
 ```

@@ -3,8 +3,8 @@
 ---
 name: brainstorm
 description: "Run structured debates between AI agents to explore ideas from multiple perspectives"
-version: 2.0.0
-author: Multi-Agent Synthesis
+version: 1.1.0
+author: PSthelyBlog
 tags: [decision-making, ideation, multi-perspective, debate]
 model: sonnet
 examples:

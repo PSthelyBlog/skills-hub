@@ -4,7 +4,7 @@
 name: write-for-claude
 description: "Generate Claude-optimized instructions — unambiguous content that future Claude sessions parse identically"
 version: 1.1.0
-author: Multi-Agent Synthesis
+author: PSthelyBlog
 tags: [meta, authoring, prompts, instructions, specifications, claude-md]
 model: sonnet
 examples:

@@ -117,8 +117,8 @@ Each scenario shows:
 ```yaml
 name: skills-hub
 description: "Orchestrate specialized Claude Code skills — route requests to the right skill and combine outputs intelligently"
-version: 1.0.0
-author: Multi-Agent Synthesis
+version: 1.1.0
+author: PSthelyBlog
 tags: [orchestration, router, meta-skill, delegation]
 model: sonnet
 ```
@@ -289,7 +289,7 @@ All files are standalone and can be read independently.
 
 ## Credits
 
-**Design Process**: Multi-Agent Synthesis pattern
+**Design Process**: Three-Agent Synthesis pattern
 **Orchestration**: Claude Code Task tool for subagent execution
 **Skills Integrated**: explain, suggest, brainstorm, update, grounded, write-for-claude
 

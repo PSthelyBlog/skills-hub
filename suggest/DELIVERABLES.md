@@ -130,8 +130,8 @@ Each scenario shows:
 ```yaml
 name: suggest
 description: "Analyze code and recommend actionable improvements with before/after diffs"
-version: 1.0.0
-author: Multi-Agent Synthesis
+version: 1.1.0
+author: PSthelyBlog
 tags: [refactoring, code-quality, improvements, review]
 model: haiku
 ```
