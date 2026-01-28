@@ -1,0 +1,116 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                        /SKILLS-HUB - QUICK START                             ║
+║                 Unified Entry Point for Claude Code Skills                   ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+📦 INSTALLATION
+─────────────────────────────────────────────────────────────────────────────
+  cp -r skills-hub ~/.claude/skills/
+
+
+🚀 BASIC USAGE
+─────────────────────────────────────────────────────────────────────────────
+  /skills-hub explain src/auth.ts              # Understand code
+  /skills-hub suggest improvements             # Get recommendations
+  /skills-hub brainstorm REST vs GraphQL       # Multi-perspective debate
+  /skills-hub update src/hooks/useAuth.ts      # Modernize with latest docs
+  /skills-hub grounded React 19 features       # Verify current info
+  /skills-hub write-for-claude create CLAUDE.md # Generate instructions
+
+
+🎯 AVAILABLE SKILLS
+─────────────────────────────────────────────────────────────────────────────
+  explain         │  Understand code — quick answers to deep dives
+  suggest         │  Actionable improvements with before/after diffs
+  brainstorm      │  Multi-perspective debates (3 AI agents)
+  update          │  Modernize code with fresh documentation
+  grounded        │  Verify volatile knowledge, trust stable knowledge
+  write-for-claude│  Generate Claude-optimized instructions
+
+
+🔄 SKILL CHAINING
+─────────────────────────────────────────────────────────────────────────────
+  Use "then" to chain skills sequentially:
+
+  /skills-hub explain auth then suggest        # Understand → Improve
+  /skills-hub brainstorm approach then suggest # Decide → Implement
+  /skills-hub grounded React Query then update # Verify → Modernize
+
+
+⚡ PARALLEL EXECUTION
+─────────────────────────────────────────────────────────────────────────────
+  Use "and" for independent targets (runs concurrently):
+
+  /skills-hub explain auth.ts and explain users.ts
+  /skills-hub suggest src/api/ and suggest src/utils/
+
+
+🧠 INTENT-BASED ROUTING
+─────────────────────────────────────────────────────────────────────────────
+  The hub infers the skill from natural language:
+
+  "what does this do"          → explain
+  "how can I improve"          → suggest
+  "should we use X or Y"       → brainstorm
+  "modernize this code"        → update
+  "is this still current"      → grounded
+  "write instructions for"     → write-for-claude
+
+
+🏷️ PASSING FLAGS
+─────────────────────────────────────────────────────────────────────────────
+  Flags pass through to the target skill:
+
+  /skills-hub explain auth --deep              # Deep explanation
+  /skills-hub suggest --category security      # Category filter
+  /skills-hub update --dry-run src/            # Preview only
+
+
+📚 DOCUMENTATION
+─────────────────────────────────────────────────────────────────────────────
+  README.md        →  Feature overview and usage guide
+  EXAMPLES.md      →  Real-world scenarios and workflows
+  SKILL.md         →  Complete specification (for Claude)
+  DESIGN.md        →  Architecture and design rationale
+  INSTALL.md       →  Installation and troubleshooting
+
+
+💡 TIPS
+─────────────────────────────────────────────────────────────────────────────
+  • Use explicit skill names when you know what you need
+  • Chain explain → suggest to understand before improving
+  • Run independent analyses in parallel for speed
+  • brainstorm runs directly (spawns its own Task agents)
+  • Keep chains short (≤3 skills) for best results
+
+
+⚠️ SPECIAL NOTE: BRAINSTORM
+─────────────────────────────────────────────────────────────────────────────
+  brainstorm cannot be delegated to a subagent (it spawns its own agents).
+  The hub handles this automatically, but be aware:
+
+  /skills-hub explain X then brainstorm       # explain via Task, then brainstorm direct
+  /skills-hub brainstorm then suggest         # brainstorm direct, then suggest via Task
+
+
+🛠️ TROUBLESHOOTING
+─────────────────────────────────────────────────────────────────────────────
+  Hub not found?       →  Check: ls ~/.claude/skills/skills-hub/SKILL.md
+  Wrong skill routed?  →  Use explicit skill name: /skills-hub explain [query]
+  Chain fails?         →  Verify companion skills are installed
+  Unknown skill?       →  Hub will suggest available alternatives
+
+
+🏆 SUCCESS CRITERIA
+─────────────────────────────────────────────────────────────────────────────
+  Good hub usage:   Correct skill selected, clear output
+  Great hub usage:  Seamless chaining, invisible orchestration
+
+
+═══════════════════════════════════════════════════════════════════════════════
+
+  Ready to use! Type:  /skills-hub [your query]
+
+  The hub routes to the right skill automatically.
+
+═══════════════════════════════════════════════════════════════════════════════
