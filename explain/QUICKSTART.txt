@@ -1,0 +1,92 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                          /EXPLAIN SKILL - QUICK START                         ║
+║                      Production-Ready for Claude Code                         ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+📦 INSTALLATION
+─────────────────────────────────────────────────────────────────────────────
+  cp -r explain ~/.claude/skills/
+
+
+🚀 BASIC USAGE
+─────────────────────────────────────────────────────────────────────────────
+  /explain what does getUserById do          # Quick answer (30 sec)
+  /explain authentication flow --deep        # Comprehensive (2 min)
+  /explain why is the build failing          # Debug with context
+
+
+⚡ TWO MODES
+─────────────────────────────────────────────────────────────────────────────
+  DEFAULT (Quick)                   │  DEEP MODE (--deep flag)
+  ────────────────────────────────────────────────────────────────────────
+  • Haiku model (fast)              │  • Sonnet if needed (thorough)
+  • 3 key points                    │  • 7-section analysis
+  • <30 second response             │  • <2 minute response
+  • Concise format                  │  • Dependencies + gotchas
+  • 80% of use cases                │  • 20% of use cases
+
+
+📚 DOCUMENTATION
+─────────────────────────────────────────────────────────────────────────────
+  README.md        →  Feature overview and usage guide
+  EXAMPLES.md      →  7 real-world scenarios (onboarding, debugging, etc)
+  SKILL.md         →  Complete specification (for Claude)
+  DESIGN.md        →  Design rationale and synthesis process
+  INSTALL.md       →  Installation and troubleshooting
+
+
+🎯 USE CASES
+─────────────────────────────────────────────────────────────────────────────
+  Learning new codebases    →  /explain project structure --deep
+  Debugging issues          →  /explain why is this failing
+  Before refactoring        →  /explain what calls this function --deep
+  Code review               →  /explain what this PR changes --deep
+  Quick lookups             →  /explain isAdmin
+
+
+🔑 KEY FEATURES
+─────────────────────────────────────────────────────────────────────────────
+  ✓ Teaching-first (WHY not just WHAT)
+  ✓ Progressive disclosure (simple → deep)
+  ✓ Smart model selection (Haiku → Sonnet when needed)
+  ✓ Context-aware (adapts to your current work)
+  ✓ Plain language explanations with concrete examples
+
+
+💡 TIPS
+─────────────────────────────────────────────────────────────────────────────
+  • Be specific: "getUserById" better than "user functions"
+  • Start with quick mode, add --deep only if needed
+  • Use before modifying unfamiliar code
+  • Chain queries: understand parts before whole
+
+
+🏆 SUCCESS METRICS
+─────────────────────────────────────────────────────────────────────────────
+  Good explanation:  Answers question + <30 sec read + builds knowledge
+  Great explanation: Anticipates follow-ups + connects patterns + practical
+
+
+🛠️ TROUBLESHOOTING
+─────────────────────────────────────────────────────────────────────────────
+  Skill not found?      →  Check: ls ~/.claude/skills/explain/SKILL.md
+  Slow responses?       →  Be more specific in query
+  --deep not working?   →  Flag must be at end: /explain [query] --deep
+
+
+📊 SYNTHESIS
+─────────────────────────────────────────────────────────────────────────────
+  Three perspectives, one skill:
+  
+  Pragmatist      →  Fast by default, Haiku model, <30 sec
+  Completionist   →  Deep mode available, comprehensive analysis
+  User Advocate   →  Teaching-first, progressive disclosure
+  
+  Result: Respects your time while building your capability
+
+
+═══════════════════════════════════════════════════════════════════════════════
+
+  Ready to use! Type:  /explain [something in your codebase]
+
+═══════════════════════════════════════════════════════════════════════════════

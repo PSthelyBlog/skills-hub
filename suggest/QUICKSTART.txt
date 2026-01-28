@@ -1,0 +1,117 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                          /SUGGEST SKILL - QUICK START                        ║
+║                    Actionable Code Improvements for Claude Code              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+📦 INSTALLATION
+─────────────────────────────────────────────────────────────────────────────
+  cp -r suggest ~/.claude/skills/
+
+
+🚀 BASIC USAGE
+─────────────────────────────────────────────────────────────────────────────
+  /suggest src/auth.ts                  # Get suggestions for a file
+  /suggest --category security src/     # Focus on security issues
+  /suggest --apply src/utils.ts         # Apply suggestions interactively
+
+
+⚡ THREE DEPTHS
+─────────────────────────────────────────────────────────────────────────────
+  QUICK                    │  STANDARD (default)      │  THOROUGH
+  ───────────────────────────────────────────────────────────────────────────
+  • Lint-style checks      │  • Common issues         │  • Architectural
+  • Obvious issues         │  • Logical improvements  │  • Cross-file patterns
+  • ~10 seconds            │  • ~30 seconds           │  • ~60 seconds
+  • Pre-commit sanity      │  • Regular reviews       │  • Major refactoring
+
+
+🎯 FOUR CATEGORIES
+─────────────────────────────────────────────────────────────────────────────
+  bugs          →  Runtime errors, null checks, edge cases
+  security      →  Injection, auth gaps, OWASP top 10
+  performance   →  N+1 queries, blocking calls, memoization
+  readability   →  Long functions, duplication, naming
+
+
+📊 OUTPUT FORMAT
+─────────────────────────────────────────────────────────────────────────────
+  ### 1. [HIGH] Title describing the issue
+  **Category:** security
+  **Why:** One sentence explaining the benefit
+
+  **Before:**
+  ```typescript
+  // The problematic code
+  ```
+
+  **After:**
+  ```typescript
+  // The improved code
+  ```
+
+
+🔧 FLAGS REFERENCE
+─────────────────────────────────────────────────────────────────────────────
+  --category    Filter: bugs, security, performance, readability
+  --depth       Analysis: quick, standard, thorough
+  --limit N     Max suggestions (1-10, default: 5)
+  --apply       Interactive apply mode
+  --no-diffs    Hide before/after code blocks
+  --json        JSON output for tooling
+
+
+🔗 CHAINING WITH /EXPLAIN
+─────────────────────────────────────────────────────────────────────────────
+  /explain src/auth.ts --deep    # Understand the code
+  /suggest                        # Get improvements (reuses context)
+  /suggest --apply               # Apply them interactively
+
+
+📋 USE CASES
+─────────────────────────────────────────────────────────────────────────────
+  Pre-merge review     →  /suggest src/features/new-feature/
+  Security audit       →  /suggest --category security --depth thorough
+  Quick wins           →  /suggest --depth quick --limit 3
+  Performance tune     →  /suggest --category performance src/api/
+  Apply improvements   →  /suggest --apply src/utils.ts
+
+
+💡 TIPS
+─────────────────────────────────────────────────────────────────────────────
+  • Be specific: target files, not entire directories
+  • Use --depth quick for fast pre-commit checks
+  • Chain with /explain for understand → improve workflow
+  • Use --apply mode to review changes before implementing
+  • HIGH severity issues are real bugs - fix them first
+
+
+🏆 SUCCESS METRICS
+─────────────────────────────────────────────────────────────────────────────
+  Good suggestion:  Has clear before/after + explains why + immediately actionable
+  Great suggestion: Catches bug you'd have missed + teaches better pattern
+
+
+📚 DOCUMENTATION
+─────────────────────────────────────────────────────────────────────────────
+  README.md        →  Feature overview and usage guide
+  EXAMPLES.md      →  7 real-world scenarios
+  SKILL.md         →  Complete specification (for Claude)
+  DESIGN.md        →  Design rationale and synthesis
+  INSTALL.md       →  Installation and troubleshooting
+
+
+🔄 COMPANION TO /EXPLAIN
+─────────────────────────────────────────────────────────────────────────────
+  /explain answers: "What does this code do?"
+  /suggest answers: "How could this be better?"
+
+  Together they form a complete code review workflow:
+
+  Understand → Improve → Apply
+
+
+═══════════════════════════════════════════════════════════════════════════════
+
+  Ready to use! Type:  /suggest [file or directory]
+
+═══════════════════════════════════════════════════════════════════════════════

@@ -1,0 +1,130 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                          /UPDATE SKILL - QUICK START                         ║
+║              Modernize Code Using Fresh Documentation                        ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+📦 INSTALLATION
+─────────────────────────────────────────────────────────────────────────────
+  cp -r update ~/.claude/skills/update
+
+
+🚀 BASIC USAGE
+─────────────────────────────────────────────────────────────────────────────
+  /update src/component.tsx              # Auto-detect libraries
+  /update src/api.ts --lib express       # Specify library
+  /update src/hooks/ --dry-run           # Preview without applying
+  /update src/ --scope all               # Update all files
+
+
+⚙️ FLAGS REFERENCE
+─────────────────────────────────────────────────────────────────────────────
+  --lib [name]     Specific library to update (skip auto-detect)
+  --scope          function | file (default) | all
+  --dry-run        Preview changes without applying
+  --verbose        Show detailed output
+  --yes            Skip confirmation prompts
+  --max-risk       low | medium | high (default)
+  --no-backup      Skip backup creation (not recommended)
+
+
+🎯 RISK LEVELS
+─────────────────────────────────────────────────────────────────────────────
+  🟢 Low      Safe renames, import paths    (always apply)
+  🟡 Medium   API signature changes         (review recommended)
+  🔴 High     Behavioral changes            (careful review)
+  ⚠️ Breaking  Compatibility impact          (flagged regardless)
+
+
+🔄 WORKFLOW
+─────────────────────────────────────────────────────────────────────────────
+  1. DETECT    → Scans imports for libraries
+  2. CONFIRM   → You approve which libraries to update
+  3. FETCH     → Gets fresh docs from Context7
+  4. PREVIEW   → Shows diff with risk levels
+  5. APPROVE   → You accept/reject each change
+  6. APPLY     → Changes made (with backup)
+
+
+📋 COMMON PATTERNS
+─────────────────────────────────────────────────────────────────────────────
+
+  Explore changes first:
+  ────────────────────────────────────────────────────────────────────────
+  /update src/file.ts --dry-run --verbose
+
+  Safe CI automation:
+  ────────────────────────────────────────────────────────────────────────
+  /update src/ --yes --max-risk low
+
+  Project-wide migration:
+  ────────────────────────────────────────────────────────────────────────
+  /update src/ --lib react-query --scope all
+
+  Targeted function update:
+  ────────────────────────────────────────────────────────────────────────
+  /update src/auth.ts --scope function
+
+
+🛡️ SAFETY FEATURES
+─────────────────────────────────────────────────────────────────────────────
+  ✓ Always shows diff before applying
+  ✓ Creates backup: .update-backups/[file].[timestamp].bak
+  ✓ Logs operations: .update-audit/YYYY-MM-DD.jsonl
+  ✓ Per-change accept/reject
+  ✓ Verifies APIs exist in fetched docs
+
+
+🔧 APPROVAL OPTIONS
+─────────────────────────────────────────────────────────────────────────────
+  [Accept]        Apply this change
+  [Reject]        Skip this change
+  [Accept All]    Apply all remaining changes
+  [Reject All]    Skip all remaining changes
+  [Show Context]  See more code around the change
+
+
+📁 OUTPUT LOCATIONS
+─────────────────────────────────────────────────────────────────────────────
+  Backups:   .update-backups/filename.timestamp.bak
+  Audit:     .update-audit/YYYY-MM-DD.jsonl
+
+
+🛠️ TROUBLESHOOTING
+─────────────────────────────────────────────────────────────────────────────
+  "Library not found"    → Use exact npm name with --lib
+  "No docs available"    → Library may not be indexed in Context7
+  "Changes look wrong"   → Reject and review manually
+  Skill not found        → Check: ls ~/.claude/skills/update/SKILL.md
+
+
+📚 DOCUMENTATION
+─────────────────────────────────────────────────────────────────────────────
+  README.md      →  Feature overview and usage guide
+  EXAMPLES.md    →  7 real-world scenarios
+  SKILL.md       →  Complete specification (for Claude)
+  DESIGN.md      →  Design rationale and synthesis process
+  INSTALL.md     →  Installation and troubleshooting
+
+
+💡 TIPS
+─────────────────────────────────────────────────────────────────────────────
+  • Always start with --dry-run to understand changes
+  • Use --verbose for detailed diff output
+  • Trust low-risk changes, review high-risk carefully
+  • Delete backups after confirming changes work
+  • Run tests after any update
+
+
+🏆 PROGRESSIVE UPDATE STRATEGY
+─────────────────────────────────────────────────────────────────────────────
+  Step 1:  /update src/ --lib [lib] --dry-run       # Preview all
+  Step 2:  /update src/ --lib [lib] --max-risk low  # Apply safe
+  Step 3:  /update src/ --lib [lib] --max-risk med  # Review medium
+  Step 4:  /update [file] --verbose                 # Careful on high
+
+
+═══════════════════════════════════════════════════════════════════════════════
+
+  Ready to use! Type:  /update [file] --dry-run
+
+═══════════════════════════════════════════════════════════════════════════════

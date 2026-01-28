@@ -1,0 +1,114 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                        /BRAINSTORM SKILL - QUICK START                       ║
+║                       Production-Ready for Claude Code                       ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+📦 INSTALLATION
+─────────────────────────────────────────────────────────────────────────────
+  cp -r brainstorm ~/.claude/skills/
+
+
+🚀 BASIC USAGE
+─────────────────────────────────────────────────────────────────────────────
+  /brainstorm should we use REST or GraphQL         # Default 3 agents
+  /brainstorm --agents security,ux,cost auth flow   # Custom perspectives
+  /brainstorm --transcript monorepo decision        # Save full debate
+
+
+⚡ HOW IT WORKS
+─────────────────────────────────────────────────────────────────────────────
+  Round 1: 3 agents propose independently (no groupthink)
+  Round 2: Agents critique each other's positions
+  Synthesis: Orchestrator merges into consensus + trade-offs
+
+
+🎭 AVAILABLE PERSONAS
+─────────────────────────────────────────────────────────────────────────────
+  pragmatist      │  Speed, simplicity, "what's fastest path to ship?"
+  perfectionist   │  Quality, edge cases, "what could go wrong?"
+  user-advocate   │  UX, accessibility, "how will users experience this?"
+  skeptic         │  Questions assumptions, "are we solving the right problem?"
+  innovator       │  Creative alternatives, "is there a better way?"
+  security        │  Vulnerabilities, risks, "how could this be exploited?"
+  performance     │  Scalability, speed, "will this work at 10x scale?"
+
+
+📊 OUTPUT FORMAT
+─────────────────────────────────────────────────────────────────────────────
+  ## Brainstorm: [Topic]
+
+  **Consensus Points**       ←  Where all agents agreed
+  **Key Trade-offs**         ←  Table: Perspective | Position | Accepts
+  **Unresolved Tensions**    ←  Genuine disagreements that remain
+  **Recommendation**         ←  Synthesized path forward
+  **Suggested Next Steps**   ←  Concrete actions to take
+
+
+🏷️ FLAGS
+─────────────────────────────────────────────────────────────────────────────
+  --agents a,b,c    │  Use custom personas (comma-separated)
+  --transcript      │  Save full debate to brainstorm-*.md
+
+
+🎯 USE CASES
+─────────────────────────────────────────────────────────────────────────────
+  Design decisions      →  /brainstorm REST vs GraphQL
+  Architecture          →  /brainstorm --agents security,performance auth
+  Refactoring           →  /brainstorm how to break up this large file
+  Process               →  /brainstorm testing strategy for microservices
+  Team alignment        →  /brainstorm branching strategy (share output)
+
+
+⏱️ PERFORMANCE
+─────────────────────────────────────────────────────────────────────────────
+  Execution time:  ~30-45 seconds (parallel Haiku agents)
+  Rounds:          2 (proposals + critique)
+  Cost:            6 Haiku calls (3 agents × 2 rounds)
+
+
+🛠️ TROUBLESHOOTING
+─────────────────────────────────────────────────────────────────────────────
+  Skill not found?      →  Check: ls ~/.claude/skills/brainstorm/SKILL.md
+  Slow responses?       →  Normal, parallel agents take ~30 sec
+  --agents not working? →  Flag before topic: /brainstorm --agents a,b,c topic
+
+
+📚 DOCUMENTATION
+─────────────────────────────────────────────────────────────────────────────
+  README.md        →  Feature overview and usage guide
+  EXAMPLES.md      →  7 real-world scenarios
+  SKILL.md         →  Complete specification (for Claude)
+  DESIGN.md        →  Design rationale and synthesis process
+  INSTALL.md       →  Installation and troubleshooting
+
+
+💡 TIPS
+─────────────────────────────────────────────────────────────────────────────
+  • Be specific: "auth for mobile app" > "how to do auth"
+  • Provide context: mention team size, constraints, existing tech
+  • Use custom agents for domain-specific perspectives
+  • Chain with /explain: brainstorm first, then explain chosen approach
+
+
+🏆 SUCCESS METRICS
+─────────────────────────────────────────────────────────────────────────────
+  Good brainstorm:  Surfaces tensions you hadn't considered
+  Great brainstorm: Changes your mind on something + actionable next steps
+
+
+📊 SYNTHESIS PHILOSOPHY
+─────────────────────────────────────────────────────────────────────────────
+  Three perspectives, one skill:
+
+  Pragmatist      →  Fast by default, Haiku model, ~30 sec
+  Completionist   →  7 personas, custom agents, structured output
+  User Advocate   →  Real-time progress, actionable recommendations
+
+  Result: Debate surfaces tensions. Synthesis resolves them productively.
+
+
+═══════════════════════════════════════════════════════════════════════════════
+
+  Ready to use! Type:  /brainstorm [your decision topic]
+
+═══════════════════════════════════════════════════════════════════════════════
