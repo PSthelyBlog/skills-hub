@@ -5,13 +5,21 @@ All notable changes to the **skills-hub** repository will be documented in this 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.2.0] - 2025-01-28
+## [1.2.0] - 2025-01-29
 
 ### Changed
 - **brainstorm**: Rewrote SKILL.md using write-for-claude optimization protocol
-  - Replaced suggestions with MUST/SHOULD/MAY directives
-  - Added explicit triggers, decision trees, edge cases, and definitions
-  - Removed time estimates, hedge words, and narrative prose
+- **grounded**: Rewrote SKILL.md using write-for-claude optimization protocol
+- **skills-hub**: Rewrote SKILL.md using write-for-claude optimization protocol
+- **suggest**: Rewrote SKILL.md using write-for-claude optimization protocol
+- **update**: Rewrote SKILL.md using write-for-claude optimization protocol
+- **explain**: Updated to v2.0.0 with enhanced write-for-claude protocol
+
+All rewritten skills now include:
+- MUST/SHOULD/MAY directives replacing prose suggestions
+- Explicit IF/WHEN/ELSE triggers and decision trees
+- Definitions, Edge Cases, Anti-Patterns, and Validation sections
+- Removal of hedge words, time estimates, and philosophical sections
 
 ## [1.1.0] - 2025-01-28
 
