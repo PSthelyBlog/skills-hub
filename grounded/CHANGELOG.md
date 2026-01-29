@@ -5,6 +5,29 @@ All notable changes to the **grounded** skill will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2025-01-29
+
+### Changed
+- Rewrote SKILL.md using write-for-claude protocol
+- Replaced prose with MUST/SHOULD/MAY directives
+- Converted "Five Questions" to decision tree with IF/ELSE branches
+- Converted domain guidelines to explicit VERIFY/TRUST tables
+- Added explicit volatility signal detection table
+
+### Added
+- Definitions section (VOLATILE KNOWLEDGE, STABLE KNOWLEDGE, VOLATILITY SIGNAL, HIGH-STAKES QUERY, KNOWLEDGE CUTOFF)
+- Edge Cases section with WHEN conditions and DEFAULT
+- Anti-Patterns section with WRONG/RIGHT examples
+- Validation checklist
+- Tool Selection table with explicit rationale
+
+### Removed
+- "The Problem" section (context, not instruction)
+- "Core Philosophy" section (converted to decision tree)
+- "The Meta-Principle" section (philosophical, not actionable)
+- Lengthy examples (trimmed to Anti-Patterns comparisons)
+- "Success Metrics" prose (converted to Validation checklist)
+
 ## [1.1.0] - 2025-01-28
 
 ### Added
