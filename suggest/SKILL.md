@@ -3,7 +3,7 @@
 ---
 name: suggest
 description: "Analyze code and recommend actionable improvements with before/after diffs"
-version: 1.1.0
+version: 1.2.0
 author: PSthelyBlog
 tags: [refactoring, code-quality, improvements, review]
 model: haiku
@@ -15,86 +15,97 @@ examples:
   - "/suggest --apply"
 ---
 
-## Purpose
+## Trigger
 
-The `/suggest` skill complements `/explain` by answering **"how could this be better?"** after explain answers **"what does this do?"**
+WHEN user invokes `/suggest [target]`: Execute this protocol.
+WHEN user invokes `/suggest` after `/explain`: Use same target from explain.
 
-Where `/explain` builds understanding, `/suggest` drives improvement. Together they form a complete code review workflow.
+## Protocol
 
-## Core Philosophy
+### Step 1: Parse Request
 
-**Curated beats comprehensive.**
+Extract from user input:
 
-By default, suggestions are:
-- **Actionable** - Every suggestion includes before/after code
-- **Prioritized** - Ranked by impact, limited to 5 by default
-- **Contextual** - Understands the code from prior `/explain` if available
+| Component | Flag | Default | Valid values |
+|-----------|------|---------|--------------|
+| Target | positional | Current file or prior explain target | File path, function name, directory |
+| Category | `--category` | all | bugs, security, performance, readability |
+| Depth | `--depth` | standard | quick, standard, thorough |
+| Limit | `--limit N` | 5 | 1-10 |
+| Apply mode | `--apply` | off | on/off |
+| Show diffs | `--no-diffs` | show | show/hide |
+| JSON output | `--json` | off | on/off |
 
-## How It Works
+IF no target specified AND prior `/explain` exists in conversation:
+  Use target from prior explain
+IF no target specified AND no prior explain:
+  Use current file context
+IF no current file context:
+  Ask: "What file or function should I analyze?"
 
-1. **Analyzes the target code** - Reads file, function, or selection
-2. **Identifies improvement opportunities** - Bugs, performance, readability, security
-3. **Ranks by impact** - High-impact, low-effort suggestions first
-4. **Presents with diffs** - Before/after code for each suggestion
-5. **Optionally applies** - Interactive mode to implement changes
+### Step 2: Gather Context
 
-## Instructions for Claude
+#### 2.1 Context Decision Tree
 
-When the user invokes `/suggest [target]`, follow this protocol:
+```
+IF prior /explain exists for same target:
+  Reuse context and understanding from explain
+  MUST NOT: Re-read files already analyzed
+ELSE:
+  Read target file(s)
+  Identify language and framework
+  Note existing patterns and conventions
+```
 
-### 1. Parse the Request
+#### 2.2 Context Requirements
 
-Extract:
-- **Target**: File path, function name, or use current selection/context
-- **Category filter**: If `--category` flag present (bugs, security, performance, readability)
-- **Depth level**: If `--depth` flag present (quick, standard, thorough)
-- **Limit**: If `--limit N` flag present (default: 5, max: 10)
-- **Apply mode**: If `--apply` flag present
+MUST: Identify language (for syntax in diffs)
+MUST: Note existing code style (match in suggestions)
+MUST: Check for existing tests (avoid breaking changes)
+SHOULD: Identify project dependencies (suggest existing utilities)
 
-### 2. Gather Context
+### Step 3: Analyze for Improvements
 
-**If following `/explain`:**
-- Reuse the context and understanding from the previous explanation
-- Reference insights already surfaced
-- Don't re-read files unnecessarily
+#### 3.1 Category Definitions
 
-**If standalone:**
-- Read the target file(s)
-- Understand the code's purpose and patterns
-- Identify the language and framework conventions
+| Category | Scan for |
+|----------|----------|
+| bugs | Runtime errors, edge cases, null checks, type issues, unhandled promises, race conditions |
+| security | Input validation, injection risks, auth gaps, secrets exposure, OWASP top 10 |
+| performance | N+1 queries, unnecessary loops, missing memoization, blocking calls, large bundles |
+| readability | Long functions (>40 lines), unclear naming, code duplication (>3 lines), magic numbers |
 
-### 3. Analyze for Improvements
+#### 3.2 Depth Levels
 
-Scan for issues in these categories:
+| Depth | Scope | Use when |
+|-------|-------|----------|
+| quick | Surface patterns only (lint-style, obvious issues) | Fast feedback, small changes |
+| standard | Common issues + logical improvements | Default analysis |
+| thorough | Deep analysis, architectural suggestions, cross-file patterns | Full review, pre-merge |
 
-| Category | What to Look For |
-|----------|------------------|
-| **bugs** | Potential runtime errors, edge cases, null checks, type issues, unhandled promises |
-| **security** | Input validation, injection risks, auth gaps, secrets exposure, OWASP top 10 |
-| **performance** | N+1 queries, unnecessary loops, missing memoization, blocking calls, large bundles |
-| **readability** | Long functions, unclear naming, missing abstractions, code duplication, magic numbers |
+IF `--category` specified: Scan only that category
+ELSE: Scan all categories
 
-**Depth levels:**
+### Step 4: Rank and Filter
 
-- `quick` - Surface-level patterns only (lint-style checks, obvious issues)
-- `standard` - Common issues + logical improvements (default)
-- `thorough` - Deep analysis including architectural suggestions, cross-file patterns
+#### 4.1 Severity Assignment
 
-### 4. Rank and Filter
+| Severity | Assign when |
+|----------|-------------|
+| HIGH | Bug, security vulnerability, crash risk, data loss potential |
+| MED | Performance issue, maintainability problem, code smell |
+| LOW | Style improvement, minor optimization, nice-to-have |
 
-1. Score each issue by **impact** (how much it matters) and **effort** (how hard to fix)
-2. Prioritize: HIGH impact + LOW effort first
-3. Apply category filter if specified with `--category`
-4. Limit to N suggestions (default 5, respect `--limit` flag)
+#### 4.2 Ranking Rules
 
-**Severity assignment:**
-- `[HIGH]` - Bug, security vulnerability, crash risk, data loss potential
-- `[MED]` - Performance issue, maintainability problem, code smell
-- `[LOW]` - Style improvement, minor optimization, nice-to-have
+MUST: Score each issue by impact (how much it matters) × effort (inverse of difficulty)
+MUST: Sort by score descending (HIGH impact + LOW effort first)
+MUST: Apply category filter if `--category` specified
+MUST: Limit to N suggestions (respect `--limit` flag, default 5, max 10)
 
-### 5. Format Output
+### Step 5: Format Output
 
-Produce this structured output:
+#### 5.1 Standard Output Format
 
 ```markdown
 ## Suggestions for [target]
@@ -137,279 +148,227 @@ Produce this structured output:
 Run `/suggest --apply` to interactively apply these changes.
 ```
 
-### 6. Apply Mode Protocol
+#### 5.2 Format Rules
 
-If `--apply` flag is present:
+MUST: Include severity in brackets: `[HIGH]`, `[MED]`, `[LOW]`
+MUST: Include category label
+MUST: Include one-sentence "Why" explanation
+MUST: Show Before/After code blocks with correct language tag
+MUST: Use exact code from file in Before block (not paraphrased)
+MUST: End with summary count and `--apply` hint
+MUST NOT: Include Before/After if `--no-diffs` flag present
 
-1. **Present each suggestion one at a time**:
-   ```
-   Applying suggestion 1/N: [Title]
+IF `--json` flag present:
+  Output as JSON array with fields: `severity`, `category`, `title`, `why`, `before`, `after`, `line_start`, `line_end`
+
+### Step 6: Apply Mode
+
+WHEN `--apply` flag present:
+
+#### 6.1 Apply Protocol
+
+FOR each suggestion (in order):
+
+```
+1. Present suggestion:
+   "Applying suggestion N/M: [Title]
 
    **Before:**
-   [show the exact code to be replaced]
+   [exact code to replace]
 
    **After:**
-   [show the replacement code]
+   [replacement code]
 
-   Apply this change? (y/n/skip all)
-   ```
+   Apply this change?"
 
-2. **Wait for user response** using AskUserQuestion tool
+2. Use AskUserQuestion with options:
+   - "Yes, apply"
+   - "Skip this one"
+   - "Skip all remaining"
 
-3. **If approved**: Use Edit tool to apply the change
+3. IF "Yes, apply": Use Edit tool to apply change
+   IF "Skip this one": Continue to next
+   IF "Skip all remaining": Exit loop
 
-4. **Continue to next suggestion** or skip remaining if user chooses
-
-5. **Summarize at end**:
-   ```
-   Applied 3/5 suggestions:
-   - [Title 1] ✓
-   - [Title 2] ✓
-   - [Title 3] (skipped)
-   - [Title 4] ✓
-   - [Title 5] (skipped)
-   ```
-
-### 7. Chaining with /explain
-
-The suggest skill works seamlessly after explain:
-
-```
-User: /explain src/auth.ts
-Claude: [explains the authentication module]
-
-User: /suggest
-Claude: [suggests improvements, using same target and context]
-
-User: /suggest --apply
-Claude: [interactively applies selected improvements]
+4. Continue until all suggestions processed or user skips all
 ```
 
-**When no target is specified after `/explain`**: Automatically use the same target from the previous explain.
+#### 6.2 Apply Summary
 
-### 8. Example Interactions
+AFTER all suggestions processed:
 
-**Example 1: Basic suggestion**
+```markdown
+Applied X/N suggestions:
+- [Title 1] ✓
+- [Title 2] ✓
+- [Title 3] (skipped)
+- [Title 4] ✓
 ```
-User: /suggest src/utils/format.ts
 
-Claude:
-## Suggestions for src/utils/format.ts
+### Step 7: Handle Errors
 
-### 1. [HIGH] Add null check before string operations
-**Category:** bugs
-**Why:** Prevents TypeError when input is undefined
+WHEN target not found:
+
+```markdown
+Could not find [target]. Did you mean:
+- [similar file 1]
+- [similar file 2]
+
+Or specify a different path.
+```
+
+MUST: Use Glob to find similar files
+
+WHEN no improvements found:
+
+```markdown
+## Suggestions for [target]
+
+No significant improvements found at `--depth [current depth]`. The code follows good practices.
+
+Options:
+- Run with `--depth thorough` for deeper analysis
+- Try `--category [specific]` for focused review
+```
+
+WHEN file too large (>1000 lines):
+
+```markdown
+[target] is large ([N] lines). For better results:
+- Target a specific function: `/suggest functionName`
+- Use category filter: `/suggest --category bugs [target]`
+- Limit scope: `/suggest [target]:1-200` (lines 1-200)
+```
+
+## Definitions
+
+SUGGESTION: A specific, actionable code change with before/after examples
+SEVERITY: Impact level of the issue (HIGH/MED/LOW)
+CATEGORY: Type of improvement (bugs/security/performance/readability)
+DEPTH: How thoroughly to analyze (quick/standard/thorough)
+APPLY MODE: Interactive mode where user approves each change before it's made
+
+## Edge Cases
+
+WHEN suggestion would break existing tests:
+  MUST: Note in suggestion: "May require test updates"
+  SHOULD: Show what test changes might be needed
+
+WHEN suggestion conflicts with project style:
+  MUST: Match existing project conventions
+  MUST NOT: Suggest style changes that contradict codebase patterns
+
+WHEN multiple suggestions affect same code block:
+  MUST: Present as single combined suggestion
+  MUST NOT: Present overlapping suggestions separately
+
+WHEN target is a directory:
+  MUST: Analyze all supported files in directory
+  MUST: Group suggestions by file
+  SHOULD: Limit to most impactful suggestions across all files
+
+WHEN prior explain context exists but target differs:
+  MUST: Treat as standalone (do not reuse explain context)
+  MUST: Read new target fresh
+
+DEFAULT: If uncertain about severity, assign MED.
+
+## Anti-Patterns
+
+MUST NOT: Suggest changes without before/after code
+
+```markdown
+// WRONG: Vague suggestion
+### 1. [MED] Improve error handling
+**Why:** Better error handling would help
+[No code shown]
+
+// RIGHT: Concrete with diff
+### 1. [MED] Add try-catch around API call
+**Why:** Prevents unhandled promise rejection from crashing server
 
 **Before:**
 ```typescript
-function formatName(name: string) {
-  return name.trim().toLowerCase();
-}
-```
-
-**After:**
-```typescript
-function formatName(name: string | null | undefined) {
-  if (!name) return '';
-  return name.trim().toLowerCase();
-}
-```
-
----
-
-### 2. [MED] Extract repeated date formatting logic
-**Category:** readability
-**Why:** Reduces duplication and centralizes format changes
-
-**Before:**
-```typescript
-const date1 = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
-const date2 = `${d2.getFullYear()}-${d2.getMonth()+1}-${d2.getDate()}`;
-```
-
-**After:**
-```typescript
-const formatDate = (d: Date) =>
-  `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-
-const date1 = formatDate(d);
-const date2 = formatDate(d2);
-```
-
----
-
-**Summary:** 2 suggestions (1 high, 1 medium)
-Run `/suggest --apply` to interactively apply these changes.
-```
-
-**Example 2: Category filter**
-```
-User: /suggest --category security src/api/
-
-Claude:
-## Suggestions for src/api/ (security)
-
-### 1. [HIGH] Sanitize user input before SQL query
-**Category:** security
-**Why:** Prevents SQL injection attacks
-
-**Before:**
-```typescript
-const query = `SELECT * FROM users WHERE id = ${userId}`;
-```
-
-**After:**
-```typescript
-const query = 'SELECT * FROM users WHERE id = $1';
-const result = await db.query(query, [userId]);
-```
-
----
-
-[... more security-focused suggestions ...]
-```
-
-**Example 3: Apply mode**
-```
-User: /suggest --apply src/auth.ts
-
-Claude:
-Applying suggestion 1/3: Add error handling for token verification
-
-**Before:**
-```typescript
-const decoded = jwt.verify(token, SECRET);
+const data = await fetch(url).then(r => r.json());
 ```
 
 **After:**
 ```typescript
 try {
-  const decoded = jwt.verify(token, SECRET);
+  const data = await fetch(url).then(r => r.json());
 } catch (error) {
-  throw new AuthenticationError('Invalid token');
+  logger.error('API fetch failed', { url, error });
+  throw new ApiError('Failed to fetch data');
 }
 ```
-
-Apply this change? (y/n/skip all)
-
-User: y
-
-Claude: Applied. Moving to suggestion 2/3...
-
-[... continues through suggestions ...]
-
-Applied 2/3 suggestions:
-- Add error handling for token verification ✓
-- Use constant-time comparison for secrets ✓
-- Extract token refresh logic (skipped)
 ```
 
-### 9. Error Cases
+MUST NOT: Suggest style-only changes as HIGH severity
 
-**If target not found:**
-```
-Could not find [target]. Did you mean:
-- src/utils/format.ts
-- src/helpers/formatter.js
+```markdown
+// WRONG: Style as HIGH
+### 1. [HIGH] Use const instead of let
+**Category:** readability
 
-Or specify a different path.
-```
-
-**If no improvements found:**
-```
-## Suggestions for [target]
-
-No significant improvements found. The code follows good practices for:
-- Error handling ✓
-- Input validation ✓
-- Performance patterns ✓
-- Readability ✓
-
-Consider running with `--depth thorough` for deeper analysis.
+// RIGHT: Style as LOW
+### 1. [LOW] Use const instead of let
+**Category:** readability
 ```
 
-**If file too large:**
+MUST NOT: Suggest breaking changes without warning
+
+```markdown
+// WRONG: Breaking change unmarked
+### 1. [MED] Change function signature
+**After:**
+function getUser(id: string, options: Options) // was (id: string)
+
+// RIGHT: Breaking change flagged
+### 1. [MED] Change function signature
+**Why:** Adds flexibility for future options
+**Breaking:** Callers must be updated to pass options parameter
 ```
-[target] is large (2000+ lines). For better results:
-- Target a specific function: `/suggest functionName`
-- Use category filter: `/suggest --category bugs [target]`
-- Limit scope: `/suggest [target]:1-100` (lines 1-100)
+
+MUST NOT: Show paraphrased code in Before block
+
+```markdown
+// WRONG: Paraphrased
+**Before:**
+```typescript
+// some date formatting code here
 ```
 
-### 10. Context Awareness
-
-Before suggesting, consider:
-- **Language/Framework**: TypeScript vs JavaScript, React vs Vue, etc.
-- **Project conventions**: Existing patterns, style guide, linting rules
-- **Test coverage**: Don't break existing tests
-- **Dependencies**: Suggest using existing utilities over new ones
-
-Tailor suggestions to match the codebase's existing style.
+// RIGHT: Exact code from file
+**Before:**
+```typescript
+const formatted = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+```
+```
 
 ## Flags Reference
 
 | Flag | Description | Default |
 |------|-------------|---------|
-| `--category` | Filter: `bugs`, `security`, `performance`, `readability` | all |
-| `--depth` | Analysis depth: `quick`, `standard`, `thorough` | standard |
+| `--category` | Filter: bugs, security, performance, readability | all |
+| `--depth` | Analysis depth: quick, standard, thorough | standard |
 | `--limit N` | Maximum suggestions (1-10) | 5 |
 | `--apply` | Interactively apply suggestions | off |
 | `--no-diffs` | Hide before/after code blocks | show diffs |
 | `--json` | Output as JSON for tooling integration | off |
 
-## Usage Patterns
+## Validation
 
-### After Understanding Code
-```bash
-/explain src/api/users.ts
-/suggest                      # Uses same context
-```
+BEFORE returning, verify:
 
-### Targeted Improvements
-```bash
-/suggest --category security src/auth/
-/suggest --category performance --depth thorough
-```
+- [ ] Target file was read (or context reused from explain)
+- [ ] Each suggestion has severity label
+- [ ] Each suggestion has category label
+- [ ] Each suggestion has one-sentence "Why"
+- [ ] Before block contains exact code from file
+- [ ] After block contains valid replacement code
+- [ ] Suggestions sorted by impact (HIGH first)
+- [ ] Suggestion count respects --limit
+- [ ] Summary line present with counts
+- [ ] --apply hint present (unless in apply mode)
 
-### Quick Wins
-```bash
-/suggest --depth quick --limit 3    # Fast, actionable items
-```
-
-### Full Review
-```bash
-/suggest --depth thorough --limit 10 src/
-```
-
-### Apply Interactively
-```bash
-/suggest --apply src/utils.ts
-```
-
-## Success Metrics
-
-A good suggestion:
-- Has clear before/after code that can be directly applied
-- Explains *why* it's an improvement in one sentence
-- Is immediately actionable without major refactoring
-- Doesn't require extensive context to understand
-
-A great suggestion:
-- Catches a bug the developer would have missed
-- Teaches a better pattern for future code
-- Applies cleanly with `--apply` mode
-- Makes the developer think "why didn't I do that?"
-
-## Notes for Skill Authors
-
-This skill synthesizes three perspectives:
-
-1. **Pragmatist contribution**: Limited suggestions (5 default), quick depth option, immediate applicability
-2. **Perfectionist contribution**: Severity levels, category filtering, thorough depth option, structured format
-3. **User Advocate contribution**: Before/after diffs, interactive apply mode, clear one-sentence explanations
-
-The goal isn't to find everything wrong—it's to surface the improvements that matter most, right now.
-
----
-
-**Remember**: Explain tells you what code does. Suggest tells you what code could become. The power is in the pairing.
+IF validation fails: Fix before returning.

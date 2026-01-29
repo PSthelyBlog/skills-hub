@@ -2,8 +2,8 @@
 
 ---
 name: update
-description: "Modernize code using fresh documentation to overcome AI training cutoffs"
-version: 1.1.0
+description: "Modernize code using fresh Context7 documentation to overcome AI training cutoffs"
+version: 1.2.0
 author: PSthelyBlog
 tags: [modernization, libraries, documentation, migration]
 model: sonnet
@@ -14,352 +14,433 @@ examples:
   - "/update src/utils.ts --scope all"
 ---
 
-## Purpose
+## Trigger
 
-The `/update` skill injects fresh documentation at decision time, enabling accurate code modernization despite AI training cutoffs. Instead of suggesting outdated patterns, it fetches current library documentation and proposes changes based on the latest APIs.
+WHEN user invokes `/update [target] [options]`: Execute this protocol.
 
-## Core Problem Solved
+## Protocol
 
-```
-AI Training Cutoff ────────────────► Today
-       │                                │
-       │    Libraries released here     │
-       │    are unknown to the AI       │
-       ▼                                ▼
-   React 17 docs                    React 19 exists
-   Express 4 patterns               Express 5 released
-```
+### Step 1: Parse Request
 
-**Solution**: Fetch documentation at runtime via Context7, ensuring suggestions reflect current APIs.
+Extract from user input:
 
-## How It Works
+| Component | Flag | Default | Valid values |
+|-----------|------|---------|--------------|
+| Target | positional | none (required) | File path |
+| Library | `--lib` | auto-detect | Package name |
+| Scope | `--scope` | file | function, file, all |
+| Dry run | `--dry-run` | off | on/off |
+| Verbose | `--verbose` | off | on/off |
+| Skip prompts | `--yes` | off | on/off |
+| Max risk | `--max-risk` | high | low, medium, high |
+| Skip backup | `--no-backup` | off | on/off |
 
-1. **Detects libraries** from imports in the target file
-2. **Confirms** with user which libraries to update
-3. **Fetches fresh docs** from Context7
-4. **Generates migration diff** comparing current code to modern patterns
-5. **Previews changes** with risk levels and breaking change flags
-6. **Applies approved changes** with backup
+IF target not provided:
+  Ask: "What file should I update?"
 
-## Instructions for Claude
+### Step 2: Read Target File
 
-When the user invokes `/update [target] [options]`, follow this protocol:
+MUST: Use Read tool to get contents of target file
 
-### 1. Parse the Request
+IF file does not exist:
+  Return error: "Could not read [target]. Please verify the path is correct."
 
-Extract from the command:
-- **Target**: File path to update (required)
-- **--lib**: Specific library to update (optional, auto-detect if omitted)
-- **--scope**: `function`, `file` (default), or `all`
-- **--dry-run**: Preview without applying
-- **--verbose**: Show detailed output
-- **--yes**: Skip confirmation prompts
-- **--max-risk**: `low`, `medium`, or `high` (default)
-- **--no-backup**: Skip backup creation
+IF file is empty:
+  Return error: "File [target] is empty. Nothing to update."
 
-### 2. Read the Target File
+### Step 3: Detect Libraries
 
-First, read the file that needs updating:
+#### 3.1 Detection Decision Tree
 
 ```
-Use the Read tool to get the contents of [target file]
+IF --lib flag specified:
+  Use specified library directly
+ELSE:
+  Scan file for import patterns
+  Check package.json for versions
+  Present detected libraries for confirmation
 ```
 
-If the file doesn't exist or can't be read, provide a clear error:
-```
-Could not read [target]. Please verify the path is correct.
-```
+#### 3.2 Import Pattern Detection
 
-### 3. Detect Libraries
+Scan for these patterns:
 
-**If --lib is specified:**
-Use the specified library directly.
+| Pattern | Example | Extracts |
+|---------|---------|----------|
+| ES6 default | `import React from 'react'` | react |
+| ES6 named | `import { useState } from 'react'` | react |
+| ES6 namespace | `import * as lodash from 'lodash'` | lodash |
+| CommonJS | `const zod = require('zod')` | zod |
+| Dynamic | `import('express')` | express |
 
-**If --lib is NOT specified:**
-Scan the file for import statements:
+MUST: Check `package.json` in project root for version information
+MUST: Exclude Node.js built-ins (fs, path, http, etc.)
+MUST: Exclude relative imports (./utils, ../components)
 
-```javascript
-// Detect these patterns:
-import React from 'react';              // → react
-import { useState } from 'react';       // → react
-import * as lodash from 'lodash';       // → lodash
-import express from 'express';          // → express
-const zod = require('zod');             // → zod
-```
+#### 3.3 User Confirmation
 
-Look for:
-- ES6 imports (`import ... from '...'`)
-- CommonJS requires (`require('...')`)
-- Dynamic imports (`import('...')`)
+IF `--yes` flag NOT present:
 
-Also check `package.json` in the project root for version information.
-
-**Present detected libraries to user:**
-
-```
+```markdown
 ## Detected Libraries
 
-📦 react@17.0.2
-📦 @tanstack/react-query@3.39.0
-📦 zod@3.21.0
+- [library]@[version]
+- [library]@[version]
 
-Update these libraries? [Y/n/edit]
+Update these libraries?
 ```
 
-If `--yes` flag is present, skip this confirmation.
+Use AskUserQuestion with options:
+- "Yes, update all"
+- "Select specific libraries"
+- "Cancel"
 
-### 4. Fetch Fresh Documentation
+IF "Select specific libraries": Present checkboxes for each library
 
-For each confirmed library, use Context7 to fetch current documentation:
+### Step 4: Fetch Documentation
 
-**Step 4a: Resolve library ID**
-```
-Use mcp__plugin_context7_context7__resolve-library-id with:
-- libraryName: [detected library name]
-- query: "migration guide API changes [library name]"
-```
+FOR each confirmed library:
 
-**Step 4b: Query documentation**
+#### 4.1 Resolve Library ID
+
 ```
-Use mcp__plugin_context7_context7__query-docs with:
-- libraryId: [resolved ID from step 4a]
-- query: "migration from [current version] breaking changes new API"
+mcp__plugin_context7_context7__resolve-library-id(
+  libraryName: [library name],
+  query: "migration guide API changes [library name]"
+)
 ```
 
-**If documentation fetch fails:**
+IF resolution fails:
+  Log warning, continue with next library
+
+#### 4.2 Query Documentation
+
 ```
-⚠️ Could not fetch documentation for [library].
-Reason: [error message]
+mcp__plugin_context7_context7__query-docs(
+  libraryId: [resolved ID],
+  query: "migration from [current version] breaking changes new API"
+)
+```
+
+IF documentation fetch fails:
+
+```markdown
+Could not fetch documentation for [library].
+Reason: [error]
 
 Options:
-1. Try specifying with --lib [exact-name]
-2. Skip this library and continue
-3. Cancel the update
+1. Try with --lib [exact-name]
+2. Skip this library
+3. Cancel update
 ```
 
-### 5. Generate Proposed Changes
+Use AskUserQuestion for user choice.
 
-Compare the current code patterns against the fetched documentation to identify:
+### Step 5: Generate Proposed Changes
 
-**Types of changes:**
+#### 5.1 Change Analysis
 
-| Risk Level | Icon | Description | Example |
-|------------|------|-------------|---------|
-| Low | 🟢 | Safe renames, import changes | `react-query` → `@tanstack/react-query` |
-| Medium | 🟡 | API signature changes | `useQuery(key, fn)` → `useQuery({ queryKey, queryFn })` |
-| High | 🔴 | Behavioral changes | Caching strategy differences |
+Compare current code against fetched documentation to identify:
 
-**Breaking changes** are flagged with ⚠️ regardless of risk level.
+| Risk Level | Icon | Criteria | Examples |
+|------------|------|----------|----------|
+| Low | `[LOW]` | No behavior change, safe renames | Import path changes, type renames |
+| Medium | `[MED]` | API signature changes, same behavior | Function parameter restructuring |
+| High | `[HIGH]` | Behavioral changes, new semantics | Caching strategy, default values |
 
-**Generate a unified diff for each change:**
+MUST: Flag breaking changes with `[BREAKING]` regardless of risk level
+MUST: Only propose changes backed by fetched documentation
+MUST NOT: Propose changes based on training data alone
 
-```diff
-// Change 1 of 3 (🟢 Low risk)
-// Reason: Package renamed in v5
+#### 5.2 Risk Filtering
 
-- import { useQuery } from 'react-query'
-+ import { useQuery } from '@tanstack/react-query'
+IF `--max-risk low`: Include only LOW risk changes
+IF `--max-risk medium`: Include LOW and MED risk changes
+IF `--max-risk high` (default): Include all changes
 
-// Documentation reference: https://tanstack.com/query/latest/docs/react/guides/migrating-to-v5
+#### 5.3 Change Format
+
+FOR each change, generate:
+
+```markdown
+### Change N of M: [Brief title] [RISK] [BREAKING if applicable]
+
+**Reason:** [One sentence from documentation]
+
+**Before:**
+```language
+[exact code from file]
 ```
 
-### 6. Preview Changes
-
-**Default format** (summary view):
-
+**After:**
+```language
+[updated code]
 ```
+
+**Documentation:** [URL or reference]
+```
+
+### Step 6: Preview Changes
+
+#### 6.1 Summary View (Default)
+
+```markdown
 ## Update Opportunities for [filename]
 
-### @tanstack/react-query v5 Migration
-⚠️ BREAKING: Package renamed, API changes
+### [Library] Migration
 
-📊 Summary:
-- 🟢 2 low-risk changes (import updates)
-- 🟡 3 medium-risk changes (API signatures)
-- 🔴 1 high-risk change (caching behavior)
+[BREAKING] if any breaking changes
 
-[Show Details] [Accept All Low-Risk] [Review Each]
+**Summary:**
+- [LOW] N changes (import updates, renames)
+- [MED] N changes (API signatures)
+- [HIGH] N changes (behavioral)
+
+Total: N changes affecting M lines
 ```
 
-**Verbose format** (--verbose or --dry-run):
+#### 6.2 Verbose View (`--verbose` or `--dry-run`)
 
-Show each change individually with:
+Show each change with:
 - Line numbers affected
 - Before/after code
 - Risk level and reasoning
 - Documentation reference
 
-### 7. Get User Approval
+IF `--dry-run`:
+  Show all changes, then exit without applying
+  Return: "Dry run complete. No changes applied."
 
-**Unless --yes is specified**, prompt for each change:
+### Step 7: Get User Approval
 
+IF `--yes` flag present:
+  Skip approval, apply all changes within risk threshold
+
+ELSE:
+  FOR each change:
+
+```markdown
+Change N of M: [Title] [RISK]
+
+**Before:**
+[code]
+
+**After:**
+[code]
 ```
-Change 1 of 6: Import path update (🟢 Low)
 
-- import { useQuery } from 'react-query'
-+ import { useQuery } from '@tanstack/react-query'
+Use AskUserQuestion with options:
+- "Apply this change"
+- "Skip this change"
+- "Apply all remaining"
+- "Skip all remaining"
 
-[Accept] [Reject] [Accept All] [Reject All] [Show Context]
-```
+Track: approved_changes[], rejected_changes[]
 
-Track approved and rejected changes.
+### Step 8: Apply Changes
 
-### 8. Apply Changes
+#### 8.1 Pre-Apply
 
-**Before applying:**
-1. Create a backup (unless --no-backup):
-   ```
-   Backup created: .update-backups/[filename].[timestamp].bak
-   ```
+IF `--no-backup` NOT present:
+  MUST: Create backup at `.update-backups/[filename].[timestamp].bak`
+  MUST: Verify backup was created before proceeding
 
-2. Apply changes in reverse line order (to preserve line numbers)
+#### 8.2 Apply
 
-3. Verify the file was written correctly
+MUST: Apply changes in reverse line order (preserves line numbers)
+MUST: Use Edit tool for each change
+MUST: Verify each edit succeeded before continuing
 
-**After applying:**
+IF any edit fails:
+  Stop immediately
+  Report which changes succeeded and which failed
+  Offer to restore from backup
 
-```
+#### 8.3 Post-Apply Summary
+
+```markdown
 ## Update Complete
 
-✅ Applied 5 changes to [filename]
-❌ Rejected 1 change (user choice)
+**Applied:** N changes to [filename]
+**Rejected:** M changes (user choice)
 
-📁 Backup: .update-backups/src_components_UserProfile.tsx.1706140800.bak
+**Backup:** .update-backups/[path].[timestamp].bak
 
 ### Applied Changes:
-1. ✅ Import path: react-query → @tanstack/react-query
-2. ✅ useQuery signature updated
-3. ✅ useMutation signature updated
-4. ✅ QueryClient configuration
-5. ✅ Cache time option renamed
+1. [Title] - [one-line description]
+2. [Title] - [one-line description]
 
 ### Rejected:
-6. ❌ Caching strategy change (user rejected)
+1. [Title] - [reason if provided]
 
-Next steps:
-- Run your tests to verify the changes
-- Review the rejected change manually if needed
+### Next Steps:
+- Run tests to verify changes
+- Review rejected changes manually if needed
 - Delete backup after confirming changes work
 ```
 
-### 9. Audit Logging
+### Step 9: Audit Logging
 
-Log every operation to `.update-audit/YYYY-MM-DD.jsonl`:
+MUST: Log every operation to `.update-audit/YYYY-MM-DD.jsonl`
 
 ```json
 {
-  "timestamp": "2026-01-24T12:00:00Z",
+  "timestamp": "[ISO timestamp]",
   "operation": "apply",
-  "targetFile": "src/hooks/useAuth.ts",
-  "libraries": ["@tanstack/react-query"],
-  "details": {
-    "proposed": 6,
-    "applied": 5,
-    "rejected": 1,
-    "backupPath": ".update-backups/src_hooks_useAuth.ts.1706140800.bak"
-  },
-  "sessionId": "update-1706140800-abc123"
+  "targetFile": "[path]",
+  "libraries": ["[lib1]", "[lib2]"],
+  "proposed": N,
+  "applied": N,
+  "rejected": N,
+  "backupPath": "[path]"
 }
 ```
 
-### 10. Error Handling
+## Definitions
 
-**Library not found:**
-```
+MIGRATION: Updating code from one library version to another
+BREAKING CHANGE: Change that requires modifications to calling code
+RISK LEVEL: Assessment of how likely a change is to cause issues (LOW/MED/HIGH)
+BACKUP: Copy of original file stored before modifications
+DRY RUN: Preview mode that shows changes without applying them
+
+## Edge Cases
+
+WHEN library not found in Context7:
+
+```markdown
 Library "[name]" not found in Context7.
 
 Suggestions:
-- Check if this is the npm package name
-- Try alternative names: [suggest similar libraries]
-- Use --lib with the exact package name
+- Verify this is the npm package name
+- Try: [similar library names from search]
+- Use --lib with exact package name
 ```
 
-**No changes needed:**
-```
+WHEN no changes needed:
+
+```markdown
 ## No Updates Found
 
-Your code already follows current [library] patterns.
-Version: [current] → [latest]
+[library]@[current] is already using current patterns.
 
-No changes needed!
+No changes needed.
 ```
 
-**Partial failure:**
-```
+WHEN code already uses latest patterns:
+  Return "No updates found" message
+  MUST NOT: Propose unnecessary changes
+
+WHEN partial failure during apply:
+
+```markdown
 ## Partial Update
 
-✅ 3 changes applied successfully
-⚠️ 2 changes failed to apply
+**Applied:** N changes
+**Failed:** M changes
 
-Failed changes have been logged. Your code may be in an inconsistent state.
-Backup available at: [backup path]
+Your code may be in an inconsistent state.
+Backup available at: [path]
 
-Would you like to restore from backup? [Y/n]
+Restore from backup?
 ```
 
-## Scope Options
+Use AskUserQuestion with options: "Restore backup", "Keep partial changes"
 
-| Scope | Description | Use When |
-|-------|-------------|----------|
-| `function` | Update only the function at cursor | Making targeted changes |
-| `file` | Update the entire file (default) | Modernizing a single file |
-| `all` | Update all files importing the library | Project-wide migration |
+WHEN Context7 unavailable:
 
-## Risk Level Filtering
-
-Use `--max-risk` to limit which changes are proposed:
-
-```bash
-# Only safe renames and import changes
-/update src/api/ --max-risk low
-
-# Include API signature changes
-/update src/api/ --max-risk medium
-
-# Include behavioral changes (default)
-/update src/api/ --max-risk high
-```
-
-## Safety Principles
-
-**Always:**
-- Show diff before applying
-- Create backup by default
-- Log all operations
-- Allow per-change approval
-- Verify proposed APIs exist in fetched docs
-
-**Never:**
-- Apply changes without preview
-- Hallucinate APIs not in documentation
-- Skip backup without explicit --no-backup
-- Ignore breaking change warnings
-
-## Model Selection
-
-This skill uses Sonnet by default because:
-- Code analysis requires understanding patterns
-- Diff generation needs precision
-- Breaking change detection is complex
-- Safety is paramount for code modifications
-
-Do not downgrade to Haiku for this skill.
-
-## Integration with Context7
-
-The skill relies on Context7 for fresh documentation. If Context7 is unavailable:
-
-```
-⚠️ Documentation service unavailable
+```markdown
+Documentation service unavailable.
 
 Cannot proceed without fresh documentation (would rely on potentially outdated training data).
 
 Options:
-1. Retry fetching documentation
-2. Cancel update
-3. Proceed without docs (not recommended, may suggest outdated patterns)
+1. Retry
+2. Cancel
 ```
 
----
+MUST NOT: Proceed without documentation (would use stale training data)
 
-**Remember**: The goal is accurate modernization, not just any changes. Only propose changes backed by fetched documentation. When in doubt, show the user and let them decide.
+WHEN `--scope all` specified:
+  MUST: Find all files importing the library
+  MUST: Process each file with same protocol
+  MUST: Show aggregate summary at end
+
+DEFAULT: If uncertain about a change's risk level, classify as HIGH.
+
+## Anti-Patterns
+
+MUST NOT: Propose changes not backed by fetched documentation
+
+```markdown
+// WRONG: Change based on training data
+"I know React 19 has a new API..."
+[Proposes change without Context7 verification]
+
+// RIGHT: Change backed by documentation
+"According to Context7 docs for React 19..."
+[Shows documentation reference]
+```
+
+MUST NOT: Apply changes without preview
+
+```markdown
+// WRONG: Immediate application
+User: /update src/api.ts
+Claude: [Applies changes directly]
+
+// RIGHT: Preview first
+User: /update src/api.ts
+Claude: [Shows proposed changes, waits for approval]
+```
+
+MUST NOT: Skip backup without explicit flag
+
+```markdown
+// WRONG: No backup created
+[Applies changes without backup]
+
+// RIGHT: Backup by default
+Backup created: .update-backups/[file].[timestamp].bak
+[Then applies changes]
+```
+
+MUST NOT: Propose changes to code that doesn't use the library
+
+```markdown
+// WRONG: Suggesting unrelated changes
+"While updating react-query, I also noticed..."
+[Proposes unrelated improvements]
+
+// RIGHT: Stay focused on library migration
+[Only proposes changes related to specified/detected libraries]
+```
+
+## Flags Reference
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--lib` | Specific library to update | auto-detect |
+| `--scope` | function, file, or all | file |
+| `--dry-run` | Preview without applying | off |
+| `--verbose` | Show detailed output | off |
+| `--yes` | Skip confirmation prompts | off |
+| `--max-risk` | low, medium, or high | high |
+| `--no-backup` | Skip backup creation | off |
+
+## Validation
+
+BEFORE returning, verify:
+
+- [ ] Target file was read successfully
+- [ ] Libraries detected or specified via --lib
+- [ ] Context7 documentation fetched for each library
+- [ ] All proposed changes reference fetched documentation
+- [ ] Risk levels assigned to all changes
+- [ ] Breaking changes flagged with [BREAKING]
+- [ ] Changes filtered by --max-risk threshold
+- [ ] Backup created (unless --no-backup)
+- [ ] Audit log entry written
+- [ ] Summary shows applied/rejected counts
+
+IF validation fails: Fix before returning.

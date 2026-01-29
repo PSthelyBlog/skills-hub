@@ -2,8 +2,8 @@
 
 ---
 name: skills-hub
-description: "Orchestrate specialized Claude Code skills — route requests to the right skill and combine outputs intelligently"
-version: 1.1.0
+description: "Route requests to specialized skills, chain outputs for multi-step workflows"
+version: 1.2.0
 author: PSthelyBlog
 tags: [orchestration, router, meta-skill, delegation]
 model: sonnet
@@ -16,119 +16,109 @@ examples:
   - "/skills-hub write-for-claude create a CLAUDE.md for this project"
 ---
 
-## Purpose
-
-The `/skills-hub` command is the unified entry point for all available Claude Code skills. It analyzes user requests, routes them to the appropriate skill(s), and can chain multiple skills together for complex workflows.
-
-## Core Philosophy
-
-**Delegation preserves context, composition multiplies power.**
-
-The orchestrator:
-- **Routes intelligently** - Matches user intent to the right skill
-- **Delegates cleanly** - Uses Task subagents to execute skills
-- **Chains seamlessly** - Combines skill outputs for multi-step workflows
-- **Manages tokens** - Subagent execution prevents context contamination
-
-## Available Skills
-
-| Skill | Purpose | Use When |
-|-------|---------|----------|
-| **explain** | Understand code — quick answers to deep dives | "What does this do?", "How does X work?" |
-| **suggest** | Actionable code improvements with diffs | "How can this be better?", "Review this code" |
-| **brainstorm** ⚠️ | Multi-perspective debates (3 AI agents) — *cannot be delegated* | Design decisions, architecture choices, trade-offs |
-| **update** | Modernize code with fresh documentation | Outdated dependencies, deprecated APIs, migrations |
-| **grounded** | Verify volatile knowledge, trust stable knowledge | Current events, new APIs, regulations, time-sensitive info |
-| **write-for-claude** | Generate Claude-optimized instructions | CLAUDE.md, SKILL.md, AGENTS.md, prompts |
-
-## Instructions for Claude
+## Trigger
 
 WHEN user invokes `/skills-hub [request]`: Execute this protocol.
 
-### Step 1: Parse the Request
+## Available Skills
 
-Extract:
-- **Explicit skill name**: IF request starts with skill name (explain, suggest, brainstorm, update, grounded, write-for-claude)
-- **Chaining intent**: IF request contains "then", "and then", "after that", "followed by"
-- **Arguments**: Everything after the skill name(s)
+| Skill | Purpose | Delegatable |
+|-------|---------|-------------|
+| explain | Understand code — quick answers to deep dives | Yes |
+| suggest | Actionable code improvements with diffs | Yes |
+| brainstorm | Multi-perspective debates (3 AI agents) | **No** — execute directly |
+| update | Modernize code with fresh documentation | Yes |
+| grounded | Verify volatile knowledge, trust stable knowledge | Yes |
+| write-for-claude | Generate Claude-optimized instructions | Yes |
 
-### Step 2: Route the Request
+## Protocol
 
-#### 2.1 Explicit Skill Invocation
+### Step 1: Parse Request
 
-IF request explicitly names a skill:
+Extract from user input:
+
+| Component | How to identify | Required |
+|-----------|-----------------|----------|
+| Explicit skill name | First word matches skill name | No |
+| Chaining keywords | "then", "and then", "after that", "followed by" | No |
+| Arguments | Everything after skill name(s) | Yes |
+
+### Step 2: Route Request
+
+#### 2.1 Routing Decision Tree
 
 ```
-"/skills-hub explain src/auth.ts" → Route to explain skill
-"/skills-hub suggest --category security" → Route to suggest skill
-"/skills-hub brainstorm REST vs GraphQL" → Route to brainstorm skill
+IF request starts with skill name (explain|suggest|brainstorm|update|grounded|write-for-claude):
+  Route to that skill with remaining arguments
+ELSE IF request contains chaining keyword:
+  Parse into skill sequence (see Step 2.3)
+ELSE:
+  Apply intent-based routing (see Step 2.2)
 ```
-
-MUST: Pass all arguments after the skill name to the target skill.
 
 #### 2.2 Intent-Based Routing
 
-IF no explicit skill name, analyze intent:
+IF no explicit skill name, match intent pattern:
 
-| Intent Pattern | Route To |
-|----------------|----------|
+| IF request contains | THEN route to |
+|---------------------|---------------|
 | "what does", "how does", "why does", "explain" | explain |
 | "improve", "better", "review", "suggest", "fix" | suggest |
 | "should we", "trade-offs", "debate", "options", "decide" | brainstorm |
 | "update", "modernize", "migrate", "upgrade", "latest" | update |
 | "current", "latest version", "verify", "check if" | grounded |
-| "write instructions", "create CLAUDE.md", "generate prompt" | write-for-claude |
+| "write instructions", "create CLAUDE.md", "generate prompt", "SKILL.md" | write-for-claude |
 
-IF intent unclear:
+IF multiple patterns match equally:
+  Ask user: "Which skill should I use? [list matched skills with one-line descriptions]"
+
+IF no pattern matches:
+  Ask user: "Which skill should I use?" and list all available skills with descriptions.
+
+#### 2.3 Parse Skill Chains
+
+WHEN request contains chaining keyword ("then", "and then", "after that", "followed by"):
+
+1. Split request at chaining keyword
+2. Route each segment to appropriate skill
+3. Return ordered sequence: `[skill-1, skill-2, ...]`
+
 ```
-Ask user:
-"Which skill should I use?
-- explain — understand what code does
-- suggest — get improvement recommendations
-- brainstorm — explore options from multiple perspectives
-- update — modernize with current documentation
-- grounded — verify time-sensitive information
-- write-for-claude — generate Claude-optimized instructions"
-```
-
-#### 2.3 Skill Chaining
-
-IF request contains chaining keywords ("then", "and then", "after that"):
-
-Parse into ordered skill sequence:
-```
-"/skills-hub explain auth flow then suggest improvements"
+Example: "explain auth flow then suggest improvements"
 → Chain: [explain, suggest]
-→ Pass explain output as context to suggest
+→ Arguments: ["auth flow", "improvements"]
 ```
 
-Common chains:
-| Chain | Use Case |
+Common valid chains:
+
+| Chain | Use case |
 |-------|----------|
 | explain → suggest | Understand code, then improve it |
 | explain → brainstorm | Understand system, then debate changes |
-| brainstorm → suggest | Decide approach, then get implementation suggestions |
+| brainstorm → suggest | Decide approach, then get implementation |
 | grounded → update | Verify latest APIs, then modernize code |
 | brainstorm → write-for-claude | Debate approach, then document decisions |
 
-**Note on brainstorm in chains:** Since brainstorm cannot be delegated, chains involving brainstorm require special handling:
-- `X → brainstorm`: Delegate X via Task, then execute brainstorm directly with the result as context
-- `brainstorm → Y`: Execute brainstorm directly, then delegate Y via Task with brainstorm output as context
+MUST NOT: Execute circular chains (skill appears twice)
+  INSTEAD: Execute non-circular portion, ask user how to proceed
 
-### Step 3: Execute via Task Subagents
+### Step 3: Execute Skills
 
-MUST: Use Task tool with subagent_type="general-purpose" for each skill.
+#### 3.1 Execution Decision Tree
 
-**EXCEPTION: brainstorm skill cannot be delegated.**
-The brainstorm skill spawns 3 parallel Task agents internally. Since subagents cannot invoke the Task tool (to prevent infinite recursion), brainstorm must be executed directly by the main session, not delegated to a subagent. When a request routes to brainstorm, the main session must follow the brainstorm skill protocol directly instead of wrapping it in a Task call.
+```
+IF skill is brainstorm:
+  Execute directly in main session (do not delegate)
+  RATIONALE: brainstorm spawns 3 parallel Task agents; subagents cannot invoke Task
+ELSE IF skills are independent (no data dependency between them):
+  Launch all Task calls in parallel in single message
+ELSE:
+  Execute sequentially, passing output as context to next skill
+```
 
-**Why subagents (for other skills):**
-- Prevents context contamination in main session
-- Each skill runs with clean context
-- Token-efficient — only results return to main context
-- Skills can be run in parallel when independent
+#### 3.2 Single Skill Execution (Not Brainstorm)
 
-#### 3.1 Single Skill Execution
+MUST: Use Task tool with these parameters:
 
 ```
 Task(
@@ -146,75 +136,78 @@ Task(
 )
 ```
 
-#### 3.2 Chained Skill Execution
+#### 3.3 Brainstorm Execution
 
-FOR sequential chains:
+WHEN routing to brainstorm:
+  MUST NOT: Delegate via Task
+  MUST: Execute brainstorm protocol directly in main session
+  MUST: Read ./skills-hub/brainstorm/SKILL.md and follow its protocol
+
+#### 3.4 Chained Execution
+
+FOR each skill in chain (in order):
 
 ```
-Step 1: Execute first skill via Task
-Step 2: Receive output
-Step 3: Execute second skill via Task, passing previous output as context:
+IF skill is brainstorm:
+  Execute directly, store output
+ELSE:
+  Task(
+    subagent_type: "general-purpose",
+    description: "Execute [skill-name] with prior context",
+    prompt: """
+      Context from previous skill ([previous-skill-name]):
+      ---
+      [output from previous skill]
+      ---
 
-Task(
-  subagent_type: "general-purpose",
-  description: "Execute [skill-2] with [skill-1] context",
-  prompt: """
-    Context from previous skill ([skill-1]):
-    ---
-    [output from skill-1]
-    ---
+      Now execute the /[skill-name] skill:
+      [user's query for this skill]
 
-    Now execute the /[skill-2] skill:
-    [user's query for skill-2]
-
-    Use the context above to inform your analysis.
-    Follow the skill protocol in ./skills-hub/[skill-2]/SKILL.md
-  """
-)
+      Use the context above to inform your analysis.
+      Follow the skill protocol in ./skills-hub/[skill-name]/SKILL.md
+    """
+  )
 ```
 
-#### 3.3 Parallel Skill Execution
+MUST: Pass previous skill output as context to next skill
+MUST: Execute in order (no parallel execution for chains)
 
-IF skills are independent (no data dependency):
+#### 3.5 Parallel Execution
 
-MUST: Launch multiple Task calls in parallel in a single message.
+WHEN skills are independent (different targets, no shared context):
+
+MUST: Launch multiple Task calls in single message
 
 ```
 Example: "/skills-hub explain src/api.ts and suggest improvements for src/utils.ts"
 
-These are independent — launch both Tasks in one message:
+Launch in parallel:
 - Task 1: explain src/api.ts
 - Task 2: suggest src/utils.ts
-
-Both run concurrently.
 ```
 
-### Step 4: Synthesize Results
+### Step 4: Format Output
 
 #### 4.1 Single Skill Result
-
-Return the skill output directly with minimal wrapper:
 
 ```markdown
 ## [Skill Name] Result
 
-[skill output]
+[skill output verbatim]
 ```
 
 #### 4.2 Chained Skill Results
 
-Combine outputs with clear separation:
-
 ```markdown
 ## Workflow: [skill-1] → [skill-2]
 
-### [Skill-1]: [brief description]
+### [Skill-1]: [target/topic]
 
 [skill-1 output]
 
 ---
 
-### [Skill-2]: [brief description]
+### [Skill-2]: [target/topic]
 
 [skill-2 output]
 
@@ -222,12 +215,10 @@ Combine outputs with clear separation:
 
 ### Summary
 
-[1-2 sentence synthesis of the combined workflow result]
+[1-2 sentences synthesizing the combined result]
 ```
 
 #### 4.3 Parallel Skill Results
-
-Present side by side or sequentially:
 
 ```markdown
 ## Results
@@ -244,9 +235,9 @@ Present side by side or sequentially:
 ### Step 5: Handle Errors
 
 WHEN skill execution fails:
-```
-⚠️ [Skill Name] encountered an issue:
-[Error description]
+
+```markdown
+**[Skill Name] failed:** [error description]
 
 Options:
 1. Retry with modified parameters
@@ -254,110 +245,132 @@ Options:
 3. Proceed without this skill's output
 ```
 
-WHEN skill not found:
-```
+WHEN skill name not recognized:
+
+```markdown
 Unknown skill: "[name]"
 
-Available skills:
-- explain, suggest, brainstorm, update, grounded, write-for-claude
+Available skills: explain, suggest, brainstorm, update, grounded, write-for-claude
 
-Did you mean: [closest match]?
+Did you mean: [closest match based on string similarity]?
 ```
 
-## Skill Reference
+WHEN file argument does not exist:
 
-### explain
-**Purpose:** Understand code — quick answers or deep analysis
-**Triggers:** "what", "how", "why", "explain"
-**Flags:** `--deep` for comprehensive analysis
-**Model:** haiku (default), sonnet (--deep)
+```markdown
+File not found: [path]
 
-### suggest
-**Purpose:** Actionable code improvements with before/after diffs
-**Triggers:** "improve", "better", "review", "suggest"
-**Flags:** `--category`, `--depth`, `--limit`, `--apply`
-**Model:** haiku
-
-### brainstorm
-**Purpose:** Multi-perspective debates (3 AI personas)
-**Triggers:** "should we", "trade-offs", "options", "decide"
-**Flags:** `--agents`, `--transcript`
-**Model:** haiku
-**⚠️ Cannot be delegated:** Must be executed directly by the main session (spawns its own Task agents)
-
-### update
-**Purpose:** Modernize code using fresh Context7 documentation
-**Triggers:** "update", "modernize", "migrate", "upgrade"
-**Flags:** `--lib`, `--scope`, `--dry-run`, `--max-risk`
-**Model:** sonnet
-
-### grounded
-**Purpose:** Epistemic calibration — verify volatile, trust stable
-**Triggers:** "current", "latest", "verify", time-sensitive queries
-**Model:** sonnet
-
-### write-for-claude
-**Purpose:** Generate Claude-optimized instructions
-**Triggers:** "write instructions", "CLAUDE.md", "SKILL.md", "prompt"
-**Output:** CLAUDE.md, SKILL.md, AGENTS.md, or prompt documents
-**Model:** sonnet
-
-## Common Workflows
-
-### Code Understanding → Improvement
-```bash
-/skills-hub explain src/api/users.ts then suggest
+Similar files:
+- [suggestion 1]
+- [suggestion 2]
 ```
 
-### Decision Making → Implementation
-```bash
-/skills-hub brainstorm authentication approach then suggest implementation
-```
+## Definitions
 
-### Learn → Decide → Document
-```bash
-/skills-hub explain the auth system
-/skills-hub brainstorm improvements
-/skills-hub write-for-claude document the new auth approach
-```
-
-### Modernization Workflow
-```bash
-/skills-hub grounded check React Query latest patterns
-/skills-hub update src/hooks/useData.ts --lib @tanstack/react-query
-```
+SKILL: A specialized protocol that Claude executes for a specific type of task
+CHAIN: Ordered sequence of skills where each skill's output feeds into the next
+DELEGATION: Executing a skill via Task subagent to preserve main session context
+ROUTING: Matching user intent to the appropriate skill
 
 ## Edge Cases
 
 WHEN request matches multiple skills equally:
-  Ask user to clarify which skill to use, explaining the difference.
+  MUST: Ask user to choose
+  MUST: Explain the difference between matched skills
 
 WHEN chaining would create circular dependency:
-  MUST NOT: Execute circular chains (e.g., suggest → explain → suggest)
-  INSTEAD: Execute the non-circular portion and ask user how to proceed.
+  MUST NOT: Execute circular chains
+  MUST: Execute non-circular portion
+  MUST: Ask user how to proceed with remainder
 
-WHEN skill requires file that doesn't exist:
-  Return error with suggestions for similar files.
+WHEN skill requires file that does not exist:
+  MUST: Return error with similar file suggestions (use Glob to find)
 
-WHEN chained skill needs output format incompatible with next skill:
-  Transform output to appropriate format before passing to next skill.
+WHEN chained skill output format is incompatible with next skill:
+  MUST: Transform output to appropriate format before passing
 
-WHEN user asks for skill that doesn't exist:
-  Suggest the closest available skill based on intent.
+WHEN user asks for non-existent skill:
+  MUST: Suggest closest available skill based on intent
 
-## Success Metrics
+WHEN brainstorm is in the middle of a chain (X → brainstorm → Y):
+  MUST: Delegate X via Task
+  MUST: Execute brainstorm directly with X output as context
+  MUST: Delegate Y via Task with brainstorm output as context
 
-A good skills hub invocation:
-- Routes to the correct skill(s) without ambiguity
-- Executes skills efficiently (parallel when possible)
-- Returns synthesized output that's immediately useful
-- Maintains context between chained skills
+DEFAULT: If uncertain about routing, ask user to specify skill.
 
-A great skills hub invocation:
-- Anticipates which skill chain would best serve the user's actual goal
-- Suggests skill combinations the user didn't think to ask for
-- Produces output that's better than any single skill alone
+## Anti-Patterns
 
----
+MUST NOT: Delegate brainstorm skill
 
-**Remember:** The hub is invisible infrastructure. Users should feel like they're working with one intelligent system, not managing multiple tools. Route fast, execute clean, synthesize smart.
+```markdown
+// WRONG: Delegating brainstorm
+Task(subagent_type: "general-purpose", prompt: "Execute /brainstorm...")
+
+// RIGHT: Execute brainstorm directly
+[Read brainstorm/SKILL.md and follow protocol in main session]
+```
+
+MUST NOT: Execute chains sequentially when skills are independent
+
+```markdown
+// WRONG: Sequential when parallel is possible
+"/skills-hub explain src/a.ts and explain src/b.ts"
+[Execute first Task, wait, execute second Task]
+
+// RIGHT: Parallel execution
+[Launch both Task calls in single message]
+```
+
+MUST NOT: Lose context between chained skills
+
+```markdown
+// WRONG: No context passing
+Task(prompt: "Execute /suggest...")  // Missing explain output
+
+// RIGHT: Pass previous output
+Task(prompt: """
+  Context from explain:
+  ---
+  [explain output]
+  ---
+  Now execute /suggest...
+""")
+```
+
+MUST NOT: Guess skill when intent is ambiguous
+
+```markdown
+// WRONG: Assuming skill
+User: "help with src/api.ts"
+[Routes to explain without asking]
+
+// RIGHT: Ask for clarification
+"Which skill should I use?
+- explain — understand what the code does
+- suggest — get improvement recommendations"
+```
+
+## Skill Reference
+
+| Skill | Triggers | Flags | Model |
+|-------|----------|-------|-------|
+| explain | "what", "how", "why", "explain" | `--deep` | haiku (sonnet with --deep) |
+| suggest | "improve", "better", "review", "suggest" | `--category`, `--depth`, `--limit`, `--apply` | haiku |
+| brainstorm | "should we", "trade-offs", "options", "decide" | `--agents`, `--transcript` | haiku |
+| update | "update", "modernize", "migrate", "upgrade" | `--lib`, `--scope`, `--dry-run`, `--max-risk` | sonnet |
+| grounded | "current", "latest", "verify" | none | sonnet |
+| write-for-claude | "write instructions", "CLAUDE.md", "SKILL.md" | none | sonnet |
+
+## Validation
+
+BEFORE returning, verify:
+
+- [ ] Correct skill(s) identified from request
+- [ ] Brainstorm executed directly (not delegated) if present
+- [ ] Independent skills launched in parallel
+- [ ] Chained skills executed sequentially with context passing
+- [ ] Output formatted according to section 4
+- [ ] Errors handled with actionable options
+
+IF validation fails: Fix before returning.

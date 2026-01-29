@@ -2,8 +2,8 @@
 
 ---
 name: grounded
-description: "Epistemic calibration — knowing when to verify vs. trust training knowledge"
-version: 1.1.0
+description: "Verify volatile knowledge, trust stable knowledge — epistemic calibration for accurate responses"
+version: 1.2.0
 author: PSthelyBlog
 tags: [knowledge, verification, accuracy, current-information, metacognition]
 model: sonnet
@@ -14,463 +14,261 @@ examples:
   - "/grounded how do I configure AWS Lambda with the newest runtime"
 ---
 
-## Purpose
+## Trigger
 
-The `/grounded` skill teaches Claude epistemic calibration — the metacognitive ability to recognize when training knowledge might be outdated and verification is needed. Rather than defaulting to memory-first responses or checking everything (slow and unnecessary), Claude develops judgment about what it knows reliably vs. what requires current sources.
+WHEN user invokes `/grounded [query]`: Execute this protocol.
 
-## The Problem
+## Protocol
 
-Claude's training has a knowledge cutoff. Without calibration:
+### Step 1: Analyze Query
 
-- **Coding**: Outdated package versions, deprecated APIs
-- **News/Events**: Missing post-cutoff developments
-- **Regulations**: Superseded laws and compliance requirements
-- **Science**: Outdated guidelines, new research findings
-- **Products**: Changed features, pricing, availability
-- **Standards**: Updated specifications, new versions
-- **Best practices**: Evolved industry norms
+Extract from user input:
 
-## Core Philosophy
+| Component | How to identify |
+|-----------|-----------------|
+| Domain | Technology, regulation, science, news, products, or stable knowledge |
+| Time sensitivity | Presence of volatility signals (see below) |
+| Stakes | Medical/legal/financial = critical; general info = standard |
 
-**Not everything ages equally.**
+#### 1.1 Volatility Signals
 
-Some knowledge is timeless (mathematical proofs, historical events, logical principles). Some knowledge is volatile (framework APIs, regulations, current events). The skill is knowing which is which.
+IF query contains ANY of these terms: MUST verify
 
-## The Knowledge Volatility Spectrum
+| Signal type | Examples |
+|-------------|----------|
+| Recency markers | "latest", "current", "now", "recent", "new", "updated" |
+| Version references | "v15", "version 3", "newest", specific version numbers |
+| Date references | Year numbers, "2024", "2025", date ranges |
+| Change indicators | "changed", "deprecated", "replaced", "new API" |
 
-```
-STABLE ◄─────────────────────────────────────────────► VOLATILE
+### Step 2: Classify Knowledge Type
 
-Math        Core CS       Established      Evolving        Current
-Logic       Algorithms    Standards        Best Practices  Events
-History     Language      Classic          Active          News
-Philosophy  Fundamentals  Literature       Research        Releases
-```
+FOR each aspect of the query, classify as VERIFY or TRUST:
 
-## The Decision Framework
+#### 2.1 VERIFY (Use WebSearch, Context7, WebFetch)
 
-### When to Verify (High Volatility)
+| Domain | Verify when |
+|--------|-------------|
+| Technology | Package versions, API syntax, cloud configurations, security practices |
+| Regulations | Specific requirements, deadlines, tax rates, compliance standards |
+| Science/Medicine | Treatment guidelines, drug interactions, recent research |
+| News/Events | Post-cutoff developments, company status, political changes |
+| Products/Services | Pricing, features, availability, API limits |
+| Statistics | Numbers, data points, metrics, demographics |
 
-| Domain | Signals | Examples |
-|--------|---------|----------|
-| **Current events** | Dates, "latest," "current," "now" | Election results, company news |
-| **Technology** | Versions, setup, configuration | Framework APIs, cloud services |
-| **Regulations** | Laws, compliance, requirements | GDPR, tax codes, licensing |
-| **Science/Medicine** | Guidelines, recommendations | Treatment protocols, studies |
-| **Products/Services** | Pricing, features, availability | SaaS tools, API capabilities |
-| **Standards** | Specifications, protocols | W3C, ISO, RFCs, accessibility |
-| **Statistics** | Numbers, data, metrics | Economic data, demographics |
+#### 2.2 TRUST TRAINING (No verification needed)
 
-### When to Trust Training (High Stability)
+| Domain | Trust when |
+|--------|------------|
+| Mathematics | Proofs, formulas, algorithms, complexity analysis |
+| Core CS | Data structures, sorting algorithms, design patterns |
+| History | Historical facts, established events, biographical data (pre-cutoff) |
+| Philosophy | Ethical frameworks, logical reasoning, established theories |
+| Language fundamentals | Core syntax, grammar, basic programming constructs |
+| Physics/Chemistry | Laws, periodic table, mechanics, thermodynamics |
 
-| Domain | Why Stable | Examples |
-|--------|-----------|----------|
-| **Mathematics** | Proofs don't expire | Calculus, linear algebra, statistics theory |
-| **Core CS** | Fundamentals persist | Data structures, algorithms, complexity |
-| **History** | Past events are fixed | Historical facts, established narratives |
-| **Philosophy** | Ideas are timeless | Ethical frameworks, logical reasoning |
-| **Language** | Syntax rarely changes | Grammar, core programming language features |
-| **Literature** | Texts don't change | Book analysis, writing techniques |
-| **Physics/Chemistry** | Laws are stable | Newtonian mechanics, periodic table |
-
-### The Gray Zone (Use Judgment)
-
-| Domain | Consider |
-|--------|----------|
-| **Established tech** | Stable but check if asking about latest features |
-| **Scientific consensus** | Usually stable but active research areas shift |
-| **Business practices** | Core principles stable, tactics evolve |
-| **Legal principles** | Foundations stable, specific laws change |
-
-## Instructions for Claude
-
-When the user invokes `/grounded [query]`, follow this protocol:
-
-### 1. Analyze the Query
-
-Identify:
-- **Domain**: What field does this touch?
-- **Time sensitivity**: Is currency important?
-- **Volatility signals**: "latest," "current," versions, dates, regulations
-- **Stakes**: How much does accuracy matter here?
+#### 2.3 Decision Tree
 
 ```
-QUERY ANALYSIS:
-- Domain(s): [technology / regulation / science / news / etc.]
-- Time sensitivity: [high / medium / low]
-- Volatility signals: [list any indicators]
-- Accuracy stakes: [critical / important / casual]
+IF query contains volatility signal: VERIFY
+ELSE IF domain is technology AND asks about specific version/config: VERIFY
+ELSE IF domain is regulation AND asks about specific requirement: VERIFY
+ELSE IF domain is science AND asks about guidelines/treatment: VERIFY
+ELSE IF domain is news/events: VERIFY
+ELSE IF domain is products AND asks about pricing/features: VERIFY
+ELSE IF domain is mathematics/logic/history/philosophy: TRUST
+ELSE IF domain is core programming concepts: TRUST
+ELSE IF uncertain: VERIFY
+DEFAULT: TRUST, but note uncertainty in response
 ```
 
-### 2. Classify Knowledge Needs
+### Step 3: Execute Verification
 
-For each aspect of the query:
+WHEN verification required, use appropriate tool:
 
-**VERIFY** (use WebSearch, Context7, WebFetch):
-- Post-cutoff events or developments
-- Version-specific information
-- Current regulations or guidelines
-- Active pricing, features, availability
-- Statistics or data points
-- Anything with "latest," "current," "now"
+| Domain | Tool | Query pattern |
+|--------|------|---------------|
+| Technology | Context7 | `resolve-library-id` → `query-docs` |
+| Technology (no Context7 match) | WebSearch | `[tool] [version] [question] [current year]` |
+| Regulations | WebSearch | `[regulation] current requirements [year] [jurisdiction]` |
+| Regulations (authoritative) | WebFetch | Official government/regulatory body URL |
+| Science/Medicine | WebSearch | `[topic] current guidelines [year]` |
+| News/Events | WebSearch | `[topic] [current year]` |
+| Products | WebSearch | `[product] pricing features [year]` |
+| Products (official) | WebFetch | Official documentation URL |
 
-**TRUST TRAINING**:
-- Mathematical or logical principles
-- Historical facts
-- Core language/framework syntax
-- Established scientific laws
-- Timeless concepts and definitions
-- Philosophical frameworks
+MUST: Include current year in WebSearch queries for volatile topics
+MUST: Prefer official/authoritative sources over general results
+MUST NOT: Use WebSearch for stable knowledge (wastes time, no benefit)
 
-**JUDGMENT CALL** (verify if uncertain):
-- Established but evolving fields
-- "Best practices" (stable core, shifting details)
-- Scientific consensus (unless asking about recent research)
+### Step 4: Generate Response
 
-### 3. Execute Verification
+#### 4.1 Response Format
 
-When verification is needed:
-
-**For technology:**
-```
-Context7: resolve-library-id → query-docs
-WebSearch: "[tool] [version] [specific question] [current year]"
-```
-
-**For regulations/law:**
-```
-WebSearch: "[regulation] current requirements [year] [jurisdiction]"
-WebFetch: Official government/regulatory body sites
-```
-
-**For science/medicine:**
-```
-WebSearch: "[topic] current guidelines [year]"
-WebSearch: "[topic] latest research findings"
-```
-
-**For news/events:**
-```
-WebSearch: "[topic] [current year]"
-WebSearch: "[company/person] latest news"
-```
-
-**For products/services:**
-```
-WebSearch: "[product] pricing features [year]"
-WebFetch: Official product documentation
-```
-
-### 4. Show Your Reasoning
-
-Always explain the epistemic assessment:
-
-```
+```markdown
 ## Knowledge Assessment
 
-**Verified (volatile/time-sensitive):**
-- [What you looked up and why]
-- [Key findings that differ from or confirm training]
+**Verified (volatile):**
+- [Item]: [Source] — [Key finding]
+- [Item]: [Source] — [Key finding]
 
-**Trusted training (stable knowledge):**
-- [What you used from training and why it's reliable]
+**Trusted training (stable):**
+- [Item]: [Why stable]
 
 **Confidence notes:**
 - [Any remaining uncertainties]
-- [Suggestions for authoritative sources if stakes are high]
-```
 
-### 5. Synthesize Response
+---
 
-Combine verified current information with stable training knowledge. Flag any uncertainties or areas where information might have changed since your search.
+[Main response content]
 
-### 6. Offer Authoritative Sources
-
-For high-stakes queries, always point to authoritative sources:
-
-```
 **For authoritative information:**
 - [Official source 1]
 - [Official source 2]
 ```
 
-## The Five Questions
+#### 4.2 Format Rules
 
-Before responding to any query, ask:
+MUST: Show knowledge assessment before main response
+MUST: Cite sources for all verified information
+MUST: Explain why trusted items are stable
+MUST: List authoritative sources for high-stakes queries
+SHOULD: Note any findings that differ from expected training knowledge
 
-1. **Could this have changed since training?** → If yes, verify
-2. **Is this a volatile domain?** → Technology, regulations, science updates → verify
-3. **Are there volatility signals?** → "latest," "current," versions, dates → verify
-4. **Is this timeless knowledge?** → Math, history, logic, core concepts → trust
-5. **Am I uncertain?** → When in doubt, verify
+#### 4.3 Domain-Specific Requirements
 
-## Domain-Specific Guidelines
+WHEN domain is medical/health:
+  MUST: Add disclaimer: "For medical decisions, consult a qualified healthcare provider. This information is for educational purposes only."
+  MUST: Point to authoritative sources (FDA, NIH, medical associations)
 
-### Technology & Software
+WHEN domain is legal/regulatory:
+  MUST: Add disclaimer: "For legal advice, consult a qualified attorney in your jurisdiction."
+  MUST: Point to official regulatory body sources
 
-**Verify:**
-- Package versions and installation commands
-- API syntax for fast-moving frameworks (React, Next.js, etc.)
-- Cloud service configurations (AWS, GCP, Azure)
-- Tool setup and configuration files
-- Security best practices
+WHEN domain is financial:
+  MUST: Add disclaimer: "This is not financial advice. Consult a qualified financial advisor."
 
-**Trust:**
-- Core language syntax (Python, JavaScript, etc.)
-- Fundamental algorithms and data structures
-- Database concepts (SQL basics, normalization)
-- Design patterns and architectural principles
-- Git commands and workflows
+### Step 5: Validate Response
 
-### Regulations & Compliance
+BEFORE returning, verify:
 
-**Verify:**
-- Specific legal requirements and deadlines
-- Tax rates and thresholds
-- Privacy regulations (GDPR, CCPA specifics)
-- Industry compliance standards
-- Licensing requirements
+- [ ] Volatile knowledge was verified (not stated from memory)
+- [ ] Stable knowledge was trusted (not unnecessarily verified)
+- [ ] Sources cited for all verified claims
+- [ ] Knowledge assessment section present
+- [ ] Appropriate disclaimers for high-stakes domains
+- [ ] Authoritative sources listed for high-stakes queries
+- [ ] Uncertainties acknowledged
 
-**Trust:**
-- Legal principles and frameworks
-- Contract law basics
-- General regulatory concepts
-- Historical legal precedents
+IF validation fails: Fix before returning.
 
-### Science & Medicine
+## Definitions
 
-**Verify:**
-- Treatment guidelines and protocols
-- Drug interactions and dosages
-- Recent research findings
-- Public health recommendations
-- Clinical best practices
+VOLATILE KNOWLEDGE: Information that changes frequently — APIs, regulations, prices, current events, guidelines
+STABLE KNOWLEDGE: Information that does not change — mathematical proofs, historical facts, scientific laws, core algorithms
+VOLATILITY SIGNAL: Query terms indicating recency matters — "latest", "current", versions, dates
+HIGH-STAKES QUERY: Medical, legal, or financial queries where incorrect information causes harm
+KNOWLEDGE CUTOFF: Date after which Claude's training data does not include information
 
-**Trust:**
-- Basic biology, chemistry, physics
-- Anatomical facts
-- Established scientific laws
-- Historical scientific discoveries
+## Edge Cases
 
-**Always add disclaimer:**
-```
-**Important:** For medical decisions, consult a qualified healthcare provider.
-This information is for educational purposes only.
-```
+WHEN query mixes stable and volatile aspects:
+  MUST: Verify volatile aspects only
+  MUST: Trust stable aspects
+  MUST: Clearly separate which is which in response
 
-### News & Current Events
+WHEN verification returns no results:
+  MUST: State that current information was not found
+  MUST: Provide training knowledge with explicit caveat: "Based on training data (may be outdated)"
+  MUST NOT: Present training knowledge as current without caveat
 
-**Verify:**
-- Anything that might have happened post-training
-- Company status, leadership, acquisitions
-- Political developments
-- Economic indicators
-- Ongoing situations
+WHEN query asks about something that does not exist yet:
+  MUST: Verify existence before explaining
+  IF does not exist: State clearly, do not hallucinate features
 
-**Trust:**
-- Historical context for events
-- Geographical facts
-- Biographical information (pre-cutoff)
+WHEN user asks about "best practices":
+  MUST: Verify current practices (they evolve)
+  MAY: Trust core principles underlying the practices
 
-### Products & Services
+WHEN query is ambiguous about time frame:
+  Ask: "Are you asking about current [topic] or the general concept?"
+  OR: Provide both with clear labels
 
-**Verify:**
-- Pricing and plans
-- Feature availability
-- API capabilities and limits
-- Service status and availability
-- Comparison with competitors
+DEFAULT: When uncertain whether to verify, verify.
 
-**Trust:**
-- General product categories
-- Core functionality concepts
-- Industry terminology
+## Anti-Patterns
 
-## Examples
+MUST NOT: Over-verify stable knowledge
 
-### Example 1: Technology (Mostly Verify)
+```markdown
+// WRONG: Verifying timeless knowledge
+User: /grounded explain quicksort
+Claude: [searches for "quicksort algorithm 2025"]
 
-```
-User: /grounded create a Next.js app with Supabase auth
-
+// RIGHT: Trust stable CS fundamentals
+User: /grounded explain quicksort
 Claude:
 ## Knowledge Assessment
-
-**Verified (fast-moving ecosystem):**
-- Next.js: v15 current, App Router default, React 19
-- Supabase: Checked current auth patterns, @supabase/ssr package
-- Integration: Current recommended approach uses middleware
-
-**Trusted training (stable):**
-- TypeScript syntax and patterns
-- React component concepts
-- General authentication flows
-
-**Key finding:** Supabase auth setup has changed significantly—
-now uses @supabase/ssr instead of @supabase/auth-helpers.
-
-[Proceeds with current patterns...]
+**Trusted training (stable):** Quicksort algorithm (1959, unchanged)
+**Verification needed:** None — sorting algorithms are foundational CS
 ```
 
-### Example 2: Regulation (Verify Specifics)
+MUST NOT: Under-verify volatile knowledge
 
-```
-User: /grounded what are the GDPR requirements for cookie consent
+```markdown
+// WRONG: Stating versions from memory
+User: /grounded set up Next.js with Supabase
+Claude: Use @supabase/auth-helpers...
 
+// RIGHT: Verify fast-moving ecosystem
+User: /grounded set up Next.js with Supabase
 Claude:
 ## Knowledge Assessment
-
-**Verified (regulation specifics):**
-- Current GDPR cookie requirements (2024 guidance)
-- Recent enforcement trends and fines
-- ePrivacy Directive interaction
-
-**Trusted training (legal principles):**
-- General concept of informed consent
-- Data protection principles
-- Privacy by design framework
-
-**Key finding:** Enforcement has increased; "cookie walls"
-now explicitly non-compliant per recent guidance.
-
-**For authoritative information:**
-- European Data Protection Board guidelines
-- Your national Data Protection Authority
-
-[Provides current requirements...]
+**Verified:** Next.js v15, Supabase now uses @supabase/ssr (not auth-helpers)
 ```
 
-### Example 3: Mixed Query (Partial Verify)
+MUST NOT: Present training knowledge as current for volatile topics
 
-```
-User: /grounded explain how neural networks learn and what the latest architectures are
+```markdown
+// WRONG: False confidence
+User: /grounded what are GDPR cookie requirements
+Claude: GDPR requires explicit consent for cookies. [no verification]
 
+// RIGHT: Verify and cite
+User: /grounded what are GDPR cookie requirements
 Claude:
 ## Knowledge Assessment
-
-**Trusted training (established science):**
-- Backpropagation algorithm (1986, unchanged)
-- Gradient descent fundamentals
-- Basic neural network architectures (CNNs, RNNs)
-- Mathematical foundations (linear algebra, calculus)
-
-**Verified (active research area):**
-- Latest architecture developments (2024-2025)
-- Current state-of-the-art models
-- Recent benchmark results
-
-**Synthesis:** Core learning principles are stable and well-established.
-For latest architectures, I checked current research...
-
-[Explains fundamentals from training, latest developments from search...]
+**Verified:** Checked 2025 EDPB guidance — cookie walls now explicitly non-compliant
+**Source:** European Data Protection Board guidelines
 ```
 
-### Example 4: Stable Query (Trust Training)
+MUST NOT: Skip disclaimers for high-stakes queries
 
-```
-User: /grounded explain the quicksort algorithm
-
-Claude:
-## Knowledge Assessment
-
-**Trusted training (timeless computer science):**
-- Quicksort algorithm (1959, unchanged)
-- Time complexity analysis (established)
-- Implementation patterns (stable)
-- Comparison with other sorting algorithms (settled)
-
-**Verification needed:** None. Sorting algorithms are
-foundational computer science—they don't have versions
-or updates.
-
-[Explains directly from training knowledge...]
-```
-
-### Example 5: High-Stakes Query (Verify + Disclaim)
-
-```
+```markdown
+// WRONG: Medical info without disclaimer
 User: /grounded what medications interact with warfarin
+Claude: [provides list without disclaimer]
 
+// RIGHT: Verify, disclaim, cite authorities
+User: /grounded what medications interact with warfarin
 Claude:
 ## Knowledge Assessment
-
-**This is a high-stakes medical query.**
-
-**Verified against current sources:**
-- Checked current drug interaction databases
-- Reviewed recent clinical guidelines
-
-**Trusted training (established pharmacology):**
-- General interaction mechanisms
-- Drug metabolism principles
-
-**Important:** Drug interactions are complex and individual.
-This information is for educational purposes only.
-
-**Always consult:**
-- Your prescribing physician
-- A licensed pharmacist
-- FDA drug interaction resources
-
-[Provides information with appropriate caveats...]
+**Verified:** Checked current drug interaction databases
+**Important:** For medical decisions, consult a qualified healthcare provider.
+**Authoritative sources:** FDA drug interaction checker, your pharmacist
 ```
 
-## Anti-Patterns to Avoid
+## Tool Selection
 
-**Don't over-verify:**
-- Looking up basic syntax (`for` loops, array methods)
-- Checking stable mathematical formulas
-- Researching historical facts already well-established
+| Situation | Tool | Rationale |
+|-----------|------|-----------|
+| Library/framework docs | Context7 | Most accurate, version-specific |
+| Context7 returns no results | WebSearch | Fallback to general search |
+| Official documentation needed | WebFetch | Direct source access |
+| Current events/news | WebSearch | Broad coverage |
+| Regulatory information | WebSearch → WebFetch | Find then verify at source |
+| Stable knowledge | None | Trust training |
 
-**Don't under-verify:**
-- Assuming framework APIs haven't changed
-- Using remembered version numbers
-- Stating current events from training
-- Providing medical/legal specifics without checking
-
-**Don't false-confidence:**
-- Presenting outdated information confidently
-- Ignoring volatility signals in the query
-- Skipping verification because "I probably know this"
-
-## Integration with Tools
-
-**Context7** (preferred for technology):
-```
-resolve-library-id → query-docs
-```
-
-**WebSearch** (general current information):
-```
-Include current year in queries
-Use authoritative domains when possible
-```
-
-**WebFetch** (specific authoritative sources):
-```
-Official documentation
-Government/regulatory sites
-Academic/medical databases
-```
-
-## Success Metrics
-
-A grounded response:
-- ✅ Correctly identifies what might be stale
-- ✅ Verifies volatile information from current sources
-- ✅ Trusts training for genuinely stable knowledge
-- ✅ Shows reasoning about epistemic confidence
-- ✅ Points to authoritative sources for high-stakes topics
-- ✅ Acknowledges remaining uncertainties
-
-## The Meta-Principle
-
-**Calibrated confidence beats false certainty.**
-
-It's better to say "let me check" for something that might have changed than to confidently provide outdated information. But it's also inefficient to check everything when much knowledge is genuinely stable.
-
-The skill is knowing the difference.
-
----
-
-**Remember:** Not all knowledge ages. Know what does.
+MUST: Try Context7 first for technology queries
+MUST: Fall back to WebSearch if Context7 has no match
+MUST NOT: Use WebFetch without knowing the URL (use WebSearch to find it first)

@@ -2,9 +2,9 @@
 
 ---
 name: explain
-description: "Understand code — quick answers to deep dives on any codebase element"
-version: 2.0.0
-author: Multi-Agent Synthesis
+description: "Transform codebase questions into progressive explanations — quick answers by default, deep analysis on request"
+version: 1.2.0
+author: PSthelyBlog
 tags: [learning, documentation, codebase-understanding]
 model: haiku
 examples:
@@ -17,116 +17,92 @@ examples:
 ## Trigger
 
 WHEN user invokes `/explain [query]`: Execute this protocol.
+WHEN user invokes `/explain [query] --deep`: Execute this protocol with deep analysis enabled.
 
 ## Protocol
 
-### Step 1: Parse Request
+### Step 1: Parse the Request
 
-Extract from user query:
+Extract from user input:
 
-| Component | Extract | Example |
-|-----------|---------|---------|
-| Subject | Function, file, concept, error, or pattern to explain | `getUserById`, `auth flow`, `TypeError` |
-| Depth flag | Presence of `--deep` | `--deep` → comprehensive mode |
-| Context | Current directory, recent files | User in `/tests/` → emphasize test context |
+| Component | Source | Required |
+|-----------|--------|----------|
+| Subject | First non-flag argument | MUST be present |
+| Depth flag | `--deep` anywhere in query | MAY be absent (defaults to quick mode) |
+| Context | Current working directory, recently viewed files | Auto-captured |
+
+IF subject missing: Ask "What would you like me to explain?"
 
 ### Step 2: Determine Scope
 
-**Decision Tree: Quick vs Deep**
+| IF condition | THEN mode | Model |
+|--------------|-----------|-------|
+| `--deep` flag present | Deep | Sonnet |
+| Query contains "architecture", "design", "system", "flow" | Deep | Sonnet |
+| Query contains "performance", "complexity", "scale" | Deep | Sonnet |
+| Query asks "why" about design decisions | Deep | Sonnet |
+| Query asks about cross-file dependencies | Deep | Sonnet |
+| Single function or code block | Quick | Haiku |
+| Error message lookup | Quick | Haiku |
+| "What does X do" format | Quick | Haiku |
+| DEFAULT | Quick | Haiku |
 
-```
-IF --deep flag present: Use DEEP mode
-ELSE IF query mentions "architecture", "design", "system": Use DEEP mode
-ELSE IF query mentions "why" + design decision: Use DEEP mode
-ELSE IF query spans multiple files or modules: Use DEEP mode
-ELSE: Use QUICK mode (default)
-```
-
-**Quick Mode Characteristics:**
-- Single function or code block
-- Specific error message
-- Direct "what does X do" questions
-- Target: <30 second read time
-
-**Deep Mode Characteristics:**
-- Architecture or system design
-- Cross-file dependencies
-- Performance analysis
-- Complex debugging scenarios
+IF quick mode reveals unexpected complexity mid-explanation:
+  Notify user: "This is more complex than it appeared — switching to deeper analysis."
+  Continue with deep mode.
 
 ### Step 3: Gather Context
 
-**Decision Tree: Context Gathering**
+#### 3.1 Minimal Search (Always First)
 
-```
-IF QUICK mode:
-  MUST: Use Grep to locate specific function/file
-  MUST: Read only the relevant section (not entire file)
-  SHOULD: Check for inline comments or docstrings
-  MUST NOT: Read more than 3 files
+MUST: Search for subject using Grep
+MUST: Read only relevant sections (not full files)
+MUST: Check for existing documentation in same directory
+MUST NOT: Read entire files when searching for specific function
 
-ELSE IF DEEP mode:
+#### 3.2 Expanded Search (Deep Mode Only)
+
+WHEN deep mode:
   MUST: Trace dependencies (imports, exports)
-  MUST: Check for related tests
-  SHOULD: Review recent git history for context
-  MAY: Read related documentation files
-  MUST NOT: Read more than 10 files without user confirmation
-```
+  MUST: Check related tests
+  SHOULD: Review git history for recent changes to subject
+  MAY: Check related modules for usage patterns
 
-**Context Priority Order:**
-1. The specific code being asked about
-2. Direct callers/callees (one level)
-3. Type definitions and interfaces
-4. Tests covering the code
-5. Documentation (README, comments)
+#### 3.3 Context Awareness
 
-DEFAULT: Start with item 1, add items 2-5 only if needed to answer the question.
+BEFORE explaining, check:
 
-### Step 4: Select Model
+| Context | Purpose |
+|---------|---------|
+| Recent file reads in conversation | Tailor explanation to what user is viewing |
+| Current directory (tests/src/docs) | Adjust terminology and focus |
+| Git context (recent commits) | Understand what user is working on |
 
-**Decision Tree: Model Selection**
+### Step 4: Generate Response
 
-```
-IF QUICK mode AND query is single function lookup: Use Haiku
-ELSE IF QUICK mode AND query is error message: Use Haiku
-ELSE IF QUICK mode AND query is "what does X do": Use Haiku
-ELSE IF DEEP mode: Use Sonnet
-ELSE IF mid-explanation complexity exceeds expectations:
-  MUST: Inform user "This is more complex than expected—switching to deeper analysis"
-  THEN: Use Sonnet
-DEFAULT: Use Haiku
-```
-
-### Step 5: Generate Response
-
-#### 5.1 Quick Mode Output Format
-
-MUST use this exact structure:
+#### 4.1 Quick Mode Format
 
 ```markdown
 ## [Subject Name]
 
-**What it does**: [One sentence — max 20 words]
+**What it does**: [One sentence — max 15 words]
 
 **Key points**:
 - [Essential fact 1]
 - [Essential fact 2]
-- [Essential fact 3 — max 3 bullets]
+- [Essential fact 3]
 
-**Why it matters**: [Practical implication for user's workflow — one sentence]
+**Why it matters**: [Practical implication for user's workflow]
 
 ---
 Need more? Add `--deep` for full analysis.
 ```
 
-MUST NOT:
-- Exceed 3 bullet points in key points
-- Include code blocks longer than 5 lines
-- Add sections beyond this template
+MUST: Limit to 3-5 key points
+MUST: Include "Why it matters" with actionable context
+MUST: Offer `--deep` option at end
 
-#### 5.2 Deep Mode Output Format
-
-MUST use this exact structure:
+#### 4.2 Deep Mode Format
 
 ```markdown
 ## [Subject Name]
@@ -134,164 +110,160 @@ MUST use this exact structure:
 **Overview**: [2-3 sentence comprehensive summary]
 
 **How it works**:
-1. [Step with code reference: `file.ts:42`]
-2. [Step with code reference]
+1. [Step with file:line reference]
+2. [Step with file:line reference]
 3. [Continue as needed]
 
 **Dependencies**:
-- Uses: [list what this code depends on]
-- Used by: [list what depends on this code]
+- Relies on: [list with file paths]
+- Used by: [list with file paths]
 
 **Design choices**:
-- [Why this approach was taken]
-- [Trade-offs accepted]
-- [Alternatives not chosen and why]
+- [Choice]: [Rationale]
+- Trade-off: [What was gained] vs [what was sacrificed]
 
 **Common patterns**:
-[How this fits into broader codebase patterns — 1-2 sentences]
+[How this fits into broader codebase patterns]
 
 **Gotchas**:
 - [Edge case or known issue 1]
 - [Edge case or known issue 2]
 
 **Related**:
-- `path/to/related/file.ts` - [why relevant]
-- `path/to/another.ts` - [why relevant]
+- `[file:line]` — [brief description]
+- `[file:line]` — [brief description]
 ```
 
-MAY: Omit sections if genuinely not applicable (e.g., no gotchas exist)
-MUST NOT: Add sections beyond this template
+MUST: Include file:line references for all code mentions
+MUST: Explain trade-offs in design choices
+MUST: List at least one gotcha (or state "None identified")
 
-### Step 6: Apply Teaching Principles
+### Step 5: Apply Teaching Principles
 
-**MUST:**
-- Use plain language before technical terms
-- Show code examples from user's actual codebase (not generic samples)
-- State practical implications ("This means you can/should...")
-- Include file:line references for all code mentions
+#### 5.1 Language Rules
 
-**MUST NOT:**
-- Dump full file contents
-- Explain obvious language constructs (unless user is clearly a beginner)
-- Use jargon without definition on first use
-- Provide generic advice disconnected from the specific codebase
+MUST: Use plain language first, technical terms second
+MUST: Show code examples from user's actual codebase
+MUST: Connect new concepts to familiar ones
+MUST: Highlight practical implications
 
-**WHEN technical term is necessary:**
-  Introduce as: "[Plain description], also called [technical term]"
+MUST NOT: Dump full file contents
+MUST NOT: Over-explain obvious constructs
+MUST NOT: Give generic advice disconnected from user's code
+MUST NOT: Assume expertise level without calibration from context
 
-### Step 7: Offer Next Steps
+#### 5.2 Progressive Disclosure
 
-AFTER every explanation, offer ONE relevant follow-up:
+AFTER quick explanation, offer ONE natural next step:
 
-```
-IF explanation covered happy path only:
-  Offer: "Want to see how this handles errors?"
+| IF user asked about | THEN offer |
+|---------------------|------------|
+| Function behavior | "Want to see how this handles errors?" |
+| Data flow | "Curious about performance characteristics?" |
+| Any subject | "Need to modify this? I can show related tests." |
 
-ELSE IF explanation covered a function:
-  Offer: "Want to see where this is called from?"
+MUST: Offer only one follow-up (not a list)
+MUST: Phrase as question, not statement
 
-ELSE IF explanation covered architecture:
-  Offer: "Want me to explain any specific component in detail?"
+### Step 6: Handle Errors
 
-ELSE IF explanation revealed complexity:
-  Offer: "Want the full deep dive with `--deep`?"
+WHEN subject not found:
 
-DEFAULT: No follow-up needed
-```
+1. MUST: Search for similar matches
+2. MUST: Suggest alternatives: "Did you mean [similar name]?"
+3. MUST: Offer broader search: "I can search for all [category]-related code"
+4. MAY: Ask for clarification: "Can you point me to the file?"
 
-MUST NOT: Offer multiple follow-ups (one is enough)
+MUST NOT: Say "I can't find that" without offering next steps
 
-## Edge Cases
+WHEN multiple matches found:
 
-WHEN subject cannot be found:
-  MUST: Suggest similar matches ("Did you mean `getUserByEmail`?")
-  MUST: Offer to search broadly ("I can search for all user-related functions")
-  MUST: Ask for clarification ("Can you point me to the file?")
-  MUST NOT: Say only "I can't find that" without next steps
-
-WHEN query is ambiguous (multiple matches):
-  MUST: List top 3 matches with one-line descriptions
-  MUST: Ask user to clarify which one
-  MUST NOT: Guess and explain the wrong thing
-
-WHEN explanation requires reading >10 files:
-  MUST: Ask user "This spans many files. Should I proceed with full analysis?"
-  MUST NOT: Silently read excessive context
-
-WHEN user is in test directory:
-  SHOULD: Emphasize test coverage, mock patterns, edge cases in explanation
-
-WHEN user is in src/controllers or src/api:
-  SHOULD: Emphasize request/response flow, error handling, validation
-
-WHEN code has no documentation:
-  MUST: Note absence ("No inline docs found")
-  SHOULD: Infer purpose from naming, usage patterns, and tests
-
-DEFAULT: Proceed with standard protocol
+1. MUST: List matches with file paths
+2. MUST: Ask user to specify: "Which one? [list options]"
 
 ## Definitions
 
-QUICK MODE: Explanation readable in <30 seconds, focused on immediate utility
-DEEP MODE: Comprehensive analysis covering design, dependencies, and implications
-SUBJECT: The code element being explained (function, file, module, pattern, error)
-PRACTICAL IMPLICATION: How the explained concept affects the user's current task
+QUICK MODE: Explanation completed in <30 seconds reading time, focused on immediate practical value
+DEEP MODE: Comprehensive analysis including dependencies, design rationale, and edge cases
+SUBJECT: The function, file, concept, error, or pattern the user wants explained
+GOTCHA: Edge case, known issue, or non-obvious behavior that could cause problems
+
+## Edge Cases
+
+WHEN user asks about deprecated code:
+  MUST: Explain what it does
+  MUST: Note deprecation status
+  MUST: Point to replacement if one exists
+
+WHEN user asks about third-party library internals:
+  SHOULD: Explain how project uses the library
+  MAY: Explain library internals if directly relevant
+  MUST NOT: Deep-dive into external library source
+
+WHEN user asks "why" without specific subject:
+  Ask: "What specifically would you like me to explain the reasoning behind?"
+
+WHEN explanation would exceed 500 words (quick mode):
+  Truncate to key points
+  Add: "This topic has more depth — add `--deep` for full analysis."
+
+DEFAULT: Provide quick mode explanation with offer to go deeper.
 
 ## Anti-Patterns
 
-MUST NOT: Explain language basics to experienced developers
-  INSTEAD: Gauge expertise from query complexity and codebase sophistication
+MUST NOT generate:
 
-MUST NOT: Provide wall-of-text explanations
-  INSTEAD: Use structured format with headers and bullets
+```markdown
+// WRONG: Wall of text without structure
+The getUserById function is a utility that retrieves users from the
+database and it's important because authentication depends on it and
+you should be aware that it caches results for performance reasons...
 
-MUST NOT: Make assumptions about user's goal
-  INSTEAD: Explain what the code does; let user determine applicability
+// WRONG: Generic advice
+This follows common patterns for database access.
 
-MUST NOT: Include tangential information
-  INSTEAD: Stay focused on the specific question asked
+// WRONG: No actionable context
+**What it does**: Gets a user by ID
+(So what? Why does this matter to the user?)
 
-MUST NOT: Use the phrase "It's important to note"
-  INSTEAD: State the fact directly
-
-## Usage Patterns
-
-### For Learning
-```bash
-/explain how error handling works
-/explain the database layer --deep
-/explain why we use Redis here
+// WRONG: Assuming context
+You probably know how JWT works, so I'll skip that part...
 ```
 
-### For Debugging
-```bash
-/explain why is this endpoint returning 500
-/explain what's calling this deprecated function
-/explain the difference between login and loginWithSSO
+MUST generate:
+
+```markdown
+// RIGHT: Structured with clear sections
+## getUserById
+
+**What it does**: Fetches user record from PostgreSQL, returns null if not found.
+
+**Key points**:
+- Returns `null` on miss (does not throw)
+- Auto-includes `profile` relation
+- Cached 5 minutes in Redis
+
+**Why it matters**: Safe to call without try/catch, but always check for null.
+
+// RIGHT: Specific to their code
+This follows the repository pattern used in `src/repositories/` —
+see `orderRepository.ts:45` for a similar example.
+
+// RIGHT: Actionable implication
+**Why it matters**: The 5-minute cache means user updates won't reflect
+immediately — call `invalidateUserCache(id)` after mutations.
 ```
 
-### For Onboarding
-```bash
-/explain the project structure --deep
-/explain our testing approach
-/explain how to add a new API route
-```
+## Validation
 
-### For Code Review
-```bash
-/explain what changed in this function
-/explain the impact of this refactor --deep
-/explain potential side effects
-```
+BEFORE returning explanation, verify:
 
-## Success Metrics
+- [ ] Directly answers user's question in first section
+- [ ] Quick mode: readable in <30 seconds
+- [ ] Deep mode: includes file:line references
+- [ ] "Why it matters" contains actionable information
+- [ ] No walls of unstructured text
+- [ ] Offers exactly one follow-up option (not a list)
+- [ ] If subject not found: alternatives offered
 
-A successful explanation:
-- Answers the specific question asked (not adjacent questions)
-- Completes in <30 seconds for QUICK, <2 minutes for DEEP
-- Uses code references from the actual codebase
-- Leaves user more capable than before
-
----
-
-**Core principle**: The best explanation is the shortest one that actually helps. Start minimal, expand only when depth adds value.
+IF validation fails: Fix before returning.
