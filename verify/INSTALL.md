@@ -1,4 +1,4 @@
-# Installing Grounded Skill
+# Installing Verify Skill
 
 ## Prerequisites
 
@@ -15,7 +15,7 @@ Add to your project's `.claude/skills/` directory:
 ```bash
 # From your project root
 mkdir -p .claude/skills
-cp -r grounded .claude/skills/
+cp -r verify .claude/skills/
 ```
 
 The skill will be available when working in this project.
@@ -26,10 +26,10 @@ Add to your global Claude Code configuration:
 
 ```bash
 # macOS/Linux
-cp -r grounded ~/.claude/skills/
+cp -r verify ~/.claude/skills/
 
 # Windows
-copy grounded %USERPROFILE%\.claude\skills\
+copy verify %USERPROFILE%\.claude\skills\
 ```
 
 ### Method 3: CLAUDE.md Integration
@@ -39,14 +39,14 @@ Reference the skill principles in your project's `CLAUDE.md`:
 ```markdown
 ## Epistemic Guidelines
 
-Apply the grounded methodology for all responses:
+Apply the verify methodology for all responses:
 
 Before answering, assess knowledge volatility:
 - Verify: Technology versions, regulations, current events, statistics
 - Trust training: Math, history, core concepts, stable language features
 - Show reasoning: Explain what was verified and why
 
-See: ./grounded/SKILL.md for full protocol
+See: ./verify/SKILL.md for full protocol
 ```
 
 ## Verifying Installation
@@ -55,10 +55,10 @@ After installation, test with:
 
 ```bash
 # Should show "Knowledge Assessment" with verification
-/grounded what's the latest version of React
+/verify what's the latest version of React
 
 # Should trust training without verification
-/grounded explain how quicksort works
+/verify explain how quicksort works
 ```
 
 ## Tool Dependencies
@@ -141,14 +141,14 @@ For high-stakes environments, increase disclaimers:
 
 ## Integration with Other Skills
 
-The grounded skill works alongside other skills:
+The verify skill works alongside other skills:
 
 ```bash
-# Use grounded methodology, then explain
-/grounded explain how OAuth 2.0 works in modern SPAs
+# Use verify methodology, then explain
+/verify explain how OAuth 2.0 works in modern SPAs
 
 # Grounded code generation
-/grounded create an API endpoint following REST best practices
+/verify create an API endpoint following REST best practices
 ```
 
 ## Troubleshooting
@@ -164,7 +164,7 @@ The grounded skill works alongside other skills:
 
 ### Claude skips verification
 - Ensure skill files are in correct location
-- Check that skill is being invoked with `/grounded`
+- Check that skill is being invoked with `/verify`
 - Verify Claude Code has been restarted
 
 ### Too many disclaimers
@@ -178,10 +178,10 @@ Remove the skill directory:
 
 ```bash
 # Project-level
-rm -rf .claude/skills/grounded
+rm -rf .claude/skills/verify
 
 # Global
-rm -rf ~/.claude/skills/grounded
+rm -rf ~/.claude/skills/verify
 ```
 
 ## Feedback & Improvements

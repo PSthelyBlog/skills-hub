@@ -5,11 +5,24 @@ All notable changes to the **skills-hub** repository will be documented in this 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2025-01-30
+
+### Changed
+- **grounded → verify**: Renamed skill from `grounded` to `verify` for clearer action verb naming
+- Updated root README.md skill table and examples
+- Updated skills-hub routing to use `verify`
+
+### Rationale
+The rename emerged from a three-agent brainstorm reaching consensus that "verify" is:
+- A clear action verb matching the skill naming pattern (explain, suggest, brainstorm)
+- More discoverable — users searching for verification find it
+- Accurately describes the core function: verifying volatile knowledge
+
 ## [1.2.0] - 2025-01-29
 
 ### Changed
 - **brainstorm**: Rewrote SKILL.md using write-for-claude optimization protocol
-- **grounded**: Rewrote SKILL.md using write-for-claude optimization protocol
+- **verify** (formerly grounded): Rewrote SKILL.md using write-for-claude optimization protocol
 - **skills-hub**: Rewrote SKILL.md using write-for-claude optimization protocol
 - **suggest**: Rewrote SKILL.md using write-for-claude optimization protocol
 - **update**: Rewrote SKILL.md using write-for-claude optimization protocol
@@ -24,7 +37,7 @@ All rewritten skills now include:
 ## [1.1.0] - 2025-01-28
 
 ### Added
-- **grounded**: DESIGN.md, DELIVERABLES.md, QUICKSTART.txt (completing documentation set)
+- **verify** (formerly grounded): DESIGN.md, DELIVERABLES.md, QUICKSTART.txt (completing documentation set)
 - **write-for-claude**: DESIGN.md, DELIVERABLES.md, QUICKSTART.txt (completing documentation set)
 - CHANGELOG.md files for all skills
 - Root CHANGELOG.md for repository-wide changes
@@ -44,7 +57,7 @@ All rewritten skills now include:
 - Initial release of skills-hub repository
 - **brainstorm**: Multi-agent deliberation skill
 - **explain**: Code explanation skill with progressive depth
-- **grounded**: Epistemic calibration skill
+- **verify** (formerly grounded): Epistemic calibration skill
 - **skills-hub**: Meta-skill for routing and orchestration
 - **suggest**: Code improvement suggestions skill
 - **update**: Code modernization skill
@@ -58,7 +71,7 @@ Each skill maintains its own changelog:
 
 - [brainstorm/CHANGELOG.md](./brainstorm/CHANGELOG.md)
 - [explain/CHANGELOG.md](./explain/CHANGELOG.md)
-- [grounded/CHANGELOG.md](./grounded/CHANGELOG.md)
+- [verify/CHANGELOG.md](./verify/CHANGELOG.md)
 - [skills-hub/CHANGELOG.md](./skills-hub/CHANGELOG.md)
 - [suggest/CHANGELOG.md](./suggest/CHANGELOG.md)
 - [update/CHANGELOG.md](./update/CHANGELOG.md)

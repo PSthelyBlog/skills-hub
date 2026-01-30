@@ -1,6 +1,6 @@
 # Deliverables Summary
 
-Complete production-ready `/grounded` skill for Claude Code, enabling epistemic calibration for knowledge verification.
+Complete production-ready `/verify` skill for Claude Code, enabling epistemic calibration for knowledge verification.
 
 ---
 
@@ -93,7 +93,7 @@ Standard open source license for free use, modification, and distribution.
 ### Skill Metadata
 
 ```yaml
-name: grounded
+name: verify
 description: "Epistemic calibration — knowing when to verify vs. trust training knowledge"
 version: 1.1.0
 author: PSthelyBlog
@@ -124,7 +124,7 @@ Philosophy  Fundamentals  Literature       Research        Releases
 
 ## Output Format
 
-Every grounded response includes:
+Every verify response includes:
 
 ```markdown
 ## Knowledge Assessment
@@ -174,16 +174,16 @@ Every grounded response includes:
 
 Before deployment, verify:
 
-1. **Technology query**: `/grounded set up Next.js with auth` (should verify)
-2. **Stable query**: `/grounded explain quicksort` (should trust training)
-3. **Mixed query**: `/grounded neural networks + latest architectures` (should do both)
-4. **High-stakes query**: `/grounded drug interactions` (should verify + disclaim)
+1. **Technology query**: `/verify set up Next.js with auth` (should verify)
+2. **Stable query**: `/verify explain quicksort` (should trust training)
+3. **Mixed query**: `/verify neural networks + latest architectures` (should do both)
+4. **High-stakes query**: `/verify drug interactions` (should verify + disclaim)
 
 ---
 
 ## Success Metrics
 
-A grounded response:
+A verify response:
 - ✅ Correctly identifies what might be stale
 - ✅ Verifies volatile information from current sources
 - ✅ Trusts training for genuinely stable knowledge
@@ -199,7 +199,7 @@ A grounded response:
 
 The skill provides epistemic calibration—teaching Claude when to verify vs. trust training knowledge. The Knowledge Volatility Spectrum and domain-specific guidelines ensure accurate, efficient responses.
 
-Copy `grounded/` directory to Claude Code skills folder and invoke `/grounded [query]`.
+Copy `verify/` directory to Claude Code skills folder and invoke `/verify [query]`.
 
 ---
 

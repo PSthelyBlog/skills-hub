@@ -1,4 +1,4 @@
-# Grounded Skill for Claude Code
+# Verify Skill for Claude Code
 
 **Epistemic calibration — knowing when to verify vs. trust training knowledge.**
 
@@ -16,7 +16,7 @@ But verifying *everything* is slow and unnecessary — mathematical proofs don't
 
 ## The Solution
 
-The `/grounded` skill teaches Claude to distinguish:
+The `/verify` skill teaches Claude to distinguish:
 
 | Verify | Trust Training |
 |--------|----------------|
@@ -31,19 +31,19 @@ The `/grounded` skill teaches Claude to distinguish:
 
 ```bash
 # Technology (verify: fast-moving ecosystem)
-/grounded create a Next.js app with Supabase auth
+/verify create a Next.js app with Supabase auth
 
 # Regulations (verify: laws change)
-/grounded what are current GDPR cookie consent requirements
+/verify what are current GDPR cookie consent requirements
 
 # Science (mixed: principles stable, guidelines evolve)
-/grounded explain current treatment guidelines for hypertension
+/verify explain current treatment guidelines for hypertension
 
 # Stable knowledge (trust training)
-/grounded explain the quicksort algorithm
+/verify explain the quicksort algorithm
 
 # Current events (verify: post-cutoff)
-/grounded what's the current status of the EU AI Act
+/verify what's the current status of the EU AI Act
 ```
 
 ## How It Works
@@ -119,7 +119,7 @@ Philosophy   Language        Regulations     Releases
 
 ### High Verification (Technology Setup)
 ```
-User: /grounded set up a Python project with FastAPI and SQLAlchemy
+User: /verify set up a Python project with FastAPI and SQLAlchemy
 
 Claude verifies: FastAPI version, SQLAlchemy 2.0 patterns, Pydantic v2 syntax
 Claude trusts: Python syntax, SQL concepts, REST principles
@@ -127,7 +127,7 @@ Claude trusts: Python syntax, SQL concepts, REST principles
 
 ### Mixed (Scientific Query)
 ```
-User: /grounded explain how mRNA vaccines work and current recommendations
+User: /verify explain how mRNA vaccines work and current recommendations
 
 Claude trusts: mRNA biology, immune system basics, protein synthesis
 Claude verifies: Current vaccine schedules, recent efficacy data, guidelines
@@ -136,7 +136,7 @@ Claude disclaims: "Consult healthcare provider for personal medical advice"
 
 ### Low Verification (Stable Knowledge)
 ```
-User: /grounded explain Big O notation and algorithm complexity
+User: /verify explain Big O notation and algorithm complexity
 
 Claude trusts: Everything — this is foundational CS that doesn't change
 Claude verifies: Nothing needed
@@ -162,13 +162,13 @@ For medical decisions, consult a qualified healthcare provider.
 
 ## Installation
 
-1. Copy `grounded/` to your Claude Code skills directory
+1. Copy `verify/` to your Claude Code skills directory
 2. Restart Claude Code
-3. Use `/grounded` before queries where currency matters
+3. Use `/verify` before queries where currency matters
 
 See [INSTALL.md](INSTALL.md) for detailed instructions.
 
-## When to Use `/grounded`
+## When to Use `/verify`
 
 **Good candidates:**
 - Setting up new projects or configurations

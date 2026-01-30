@@ -46,7 +46,7 @@ Complete production-ready `/skills-hub` skill for Claude Code — the unified or
 Comprehensive examples covering:
 1. Explicit skill invocation
 2. Intent-based routing (natural language)
-3. Skill chaining patterns (explain → suggest, brainstorm → suggest, grounded → update)
+3. Skill chaining patterns (explain → suggest, brainstorm → suggest, verify → update)
 4. Parallel execution
 5. Flag passthrough
 6. Complex multi-step workflows
@@ -131,7 +131,7 @@ model: sonnet
 | suggest | Actionable code improvements with diffs | haiku |
 | brainstorm | Multi-perspective debates (3 AI agents) | haiku |
 | update | Modernize code with fresh documentation | sonnet |
-| grounded | Verify volatile knowledge, trust stable knowledge | sonnet |
+| verify | Verify volatile knowledge, trust stable knowledge | sonnet |
 | write-for-claude | Generate Claude-optimized instructions | sonnet |
 
 ### Key Features
@@ -193,7 +193,7 @@ User Request
 
 ### Verify → Modernize
 ```bash
-/skills-hub grounded check React Query v5 patterns then update src/hooks/
+/skills-hub verify check React Query v5 patterns then update src/hooks/
 ```
 
 ### Decide → Document
@@ -291,7 +291,7 @@ All files are standalone and can be read independently.
 
 **Design Process**: Three-Agent Synthesis pattern
 **Orchestration**: Claude Code Task tool for subagent execution
-**Skills Integrated**: explain, suggest, brainstorm, update, grounded, write-for-claude
+**Skills Integrated**: explain, suggest, brainstorm, update, verify, write-for-claude
 
 ---
 

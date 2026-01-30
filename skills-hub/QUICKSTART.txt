@@ -14,7 +14,7 @@
   /skills-hub suggest improvements             # Get recommendations
   /skills-hub brainstorm REST vs GraphQL       # Multi-perspective debate
   /skills-hub update src/hooks/useAuth.ts      # Modernize with latest docs
-  /skills-hub grounded React 19 features       # Verify current info
+  /skills-hub verify React 19 features       # Verify current info
   /skills-hub write-for-claude create CLAUDE.md # Generate instructions
 
 
@@ -24,7 +24,7 @@
   suggest         │  Actionable improvements with before/after diffs
   brainstorm      │  Multi-perspective debates (3 AI agents)
   update          │  Modernize code with fresh documentation
-  grounded        │  Verify volatile knowledge, trust stable knowledge
+  verify          │  Verify volatile knowledge, trust stable knowledge
   write-for-claude│  Generate Claude-optimized instructions
 
 
@@ -34,7 +34,7 @@
 
   /skills-hub explain auth then suggest        # Understand → Improve
   /skills-hub brainstorm approach then suggest # Decide → Implement
-  /skills-hub grounded React Query then update # Verify → Modernize
+  /skills-hub verify React Query then update # Verify → Modernize
 
 
 ⚡ PARALLEL EXECUTION
@@ -53,7 +53,7 @@
   "how can I improve"          → suggest
   "should we use X or Y"       → brainstorm
   "modernize this code"        → update
-  "is this still current"      → grounded
+  "is this still current"      → verify
   "write instructions for"     → write-for-claude
 
 

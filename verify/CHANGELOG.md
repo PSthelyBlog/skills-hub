@@ -1,9 +1,22 @@
 # Changelog
 
-All notable changes to the **grounded** skill will be documented in this file.
+All notable changes to the **verify** skill will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [1.3.0] - 2025-01-30
+
+### Changed
+- **Renamed skill from `grounded` to `verify`** — action verb naming for clarity and discoverability
+- Updated all documentation to use `/verify` command
+- Updated skill metadata (name, examples) in SKILL.md
+
+### Rationale
+The rename emerged from a three-agent brainstorm that reached consensus:
+- "Verify" is a clear action verb matching the skill naming pattern (explain, suggest, brainstorm)
+- More discoverable — users searching for verification will find it
+- Accurately describes the core function: verifying volatile knowledge
 
 ## [1.2.0] - 2025-01-29
 

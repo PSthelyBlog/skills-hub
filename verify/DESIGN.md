@@ -1,8 +1,8 @@
-# Design Rationale: The Grounded Skill
+# Design Rationale: The Verify Skill
 
 ## Synthesis Overview
 
-This skill emerged from a three-agent brainstorm that debated how to design `/grounded`:
+This skill emerged from a three-agent brainstorm that debated how to design `/verify`:
 
 | Agent | Position | Core Value |
 |-------|----------|------------|
@@ -181,7 +181,7 @@ ML-based detection of query volatility rather than keyword matching.
 
 ## Conclusion
 
-The grounded skill addresses a fundamental challenge: Claude's training has a cutoff, but not all knowledge ages. The skill provides:
+The verify skill addresses a fundamental challenge: Claude's training has a cutoff, but not all knowledge ages. The skill provides:
 
 - **Clear framework** for when to verify vs. trust
 - **Domain-specific** guidance for common query types

@@ -1,22 +1,22 @@
-# Grounded Skill
+# Verify Skill
 
 ---
-name: grounded
+name: verify
 description: "Verify volatile knowledge, trust stable knowledge — epistemic calibration for accurate responses"
-version: 1.2.0
+version: 1.3.0
 author: PSthelyBlog
 tags: [knowledge, verification, accuracy, current-information, metacognition]
 model: sonnet
 examples:
-  - "/grounded create a Next.js app with authentication"
-  - "/grounded what are the current EU AI regulations"
-  - "/grounded explain the latest treatment guidelines for Type 2 diabetes"
-  - "/grounded how do I configure AWS Lambda with the newest runtime"
+  - "/verify create a Next.js app with authentication"
+  - "/verify what are the current EU AI regulations"
+  - "/verify explain the latest treatment guidelines for Type 2 diabetes"
+  - "/verify how do I configure AWS Lambda with the newest runtime"
 ---
 
 ## Trigger
 
-WHEN user invokes `/grounded [query]`: Execute this protocol.
+WHEN user invokes `/verify [query]`: Execute this protocol.
 
 ## Protocol
 
@@ -202,11 +202,11 @@ MUST NOT: Over-verify stable knowledge
 
 ```markdown
 // WRONG: Verifying timeless knowledge
-User: /grounded explain quicksort
+User: /verify explain quicksort
 Claude: [searches for "quicksort algorithm 2025"]
 
 // RIGHT: Trust stable CS fundamentals
-User: /grounded explain quicksort
+User: /verify explain quicksort
 Claude:
 ## Knowledge Assessment
 **Trusted training (stable):** Quicksort algorithm (1959, unchanged)
@@ -217,11 +217,11 @@ MUST NOT: Under-verify volatile knowledge
 
 ```markdown
 // WRONG: Stating versions from memory
-User: /grounded set up Next.js with Supabase
+User: /verify set up Next.js with Supabase
 Claude: Use @supabase/auth-helpers...
 
 // RIGHT: Verify fast-moving ecosystem
-User: /grounded set up Next.js with Supabase
+User: /verify set up Next.js with Supabase
 Claude:
 ## Knowledge Assessment
 **Verified:** Next.js v15, Supabase now uses @supabase/ssr (not auth-helpers)
@@ -231,11 +231,11 @@ MUST NOT: Present training knowledge as current for volatile topics
 
 ```markdown
 // WRONG: False confidence
-User: /grounded what are GDPR cookie requirements
+User: /verify what are GDPR cookie requirements
 Claude: GDPR requires explicit consent for cookies. [no verification]
 
 // RIGHT: Verify and cite
-User: /grounded what are GDPR cookie requirements
+User: /verify what are GDPR cookie requirements
 Claude:
 ## Knowledge Assessment
 **Verified:** Checked 2025 EDPB guidance — cookie walls now explicitly non-compliant
@@ -246,11 +246,11 @@ MUST NOT: Skip disclaimers for high-stakes queries
 
 ```markdown
 // WRONG: Medical info without disclaimer
-User: /grounded what medications interact with warfarin
+User: /verify what medications interact with warfarin
 Claude: [provides list without disclaimer]
 
 // RIGHT: Verify, disclaim, cite authorities
-User: /grounded what medications interact with warfarin
+User: /verify what medications interact with warfarin
 Claude:
 ## Knowledge Assessment
 **Verified:** Checked current drug interaction databases

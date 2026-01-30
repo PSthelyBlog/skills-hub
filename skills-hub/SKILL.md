@@ -12,7 +12,7 @@ examples:
   - "/skills-hub suggest improvements for src/api.ts"
   - "/skills-hub brainstorm database architecture then suggest implementation"
   - "/skills-hub update src/hooks/useAuth.ts"
-  - "/skills-hub grounded what are the latest React 19 features"
+  - "/skills-hub verify what are the latest React 19 features"
   - "/skills-hub write-for-claude create a CLAUDE.md for this project"
 ---
 
@@ -28,7 +28,7 @@ WHEN user invokes `/skills-hub [request]`: Execute this protocol.
 | suggest | Actionable code improvements with diffs | Yes |
 | brainstorm | Multi-perspective debates (3 AI agents) | **No** — execute directly |
 | update | Modernize code with fresh documentation | Yes |
-| grounded | Verify volatile knowledge, trust stable knowledge | Yes |
+| verify | Verify volatile knowledge, trust stable knowledge | Yes |
 | write-for-claude | Generate Claude-optimized instructions | Yes |
 
 ## Protocol
@@ -48,7 +48,7 @@ Extract from user input:
 #### 2.1 Routing Decision Tree
 
 ```
-IF request starts with skill name (explain|suggest|brainstorm|update|grounded|write-for-claude):
+IF request starts with skill name (explain|suggest|brainstorm|update|verify|write-for-claude):
   Route to that skill with remaining arguments
 ELSE IF request contains chaining keyword:
   Parse into skill sequence (see Step 2.3)
@@ -66,7 +66,7 @@ IF no explicit skill name, match intent pattern:
 | "improve", "better", "review", "suggest", "fix" | suggest |
 | "should we", "trade-offs", "debate", "options", "decide" | brainstorm |
 | "update", "modernize", "migrate", "upgrade", "latest" | update |
-| "current", "latest version", "verify", "check if" | grounded |
+| "current", "latest version", "verify", "check if" | verify |
 | "write instructions", "create CLAUDE.md", "generate prompt", "SKILL.md" | write-for-claude |
 
 IF multiple patterns match equally:
@@ -96,7 +96,7 @@ Common valid chains:
 | explain → suggest | Understand code, then improve it |
 | explain → brainstorm | Understand system, then debate changes |
 | brainstorm → suggest | Decide approach, then get implementation |
-| grounded → update | Verify latest APIs, then modernize code |
+| verify → update | Verify latest APIs, then modernize code |
 | brainstorm → write-for-claude | Debate approach, then document decisions |
 
 MUST NOT: Execute circular chains (skill appears twice)
@@ -250,7 +250,7 @@ WHEN skill name not recognized:
 ```markdown
 Unknown skill: "[name]"
 
-Available skills: explain, suggest, brainstorm, update, grounded, write-for-claude
+Available skills: explain, suggest, brainstorm, update, verify, write-for-claude
 
 Did you mean: [closest match based on string similarity]?
 ```
@@ -359,7 +359,7 @@ User: "help with src/api.ts"
 | suggest | "improve", "better", "review", "suggest" | `--category`, `--depth`, `--limit`, `--apply` | haiku |
 | brainstorm | "should we", "trade-offs", "options", "decide" | `--agents`, `--transcript` | haiku |
 | update | "update", "modernize", "migrate", "upgrade" | `--lib`, `--scope`, `--dry-run`, `--max-risk` | sonnet |
-| grounded | "current", "latest", "verify" | none | sonnet |
+| verify | "current", "latest", "verify" | none | sonnet |
 | write-for-claude | "write instructions", "CLAUDE.md", "SKILL.md" | none | sonnet |
 
 ## Validation

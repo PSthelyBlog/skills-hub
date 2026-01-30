@@ -39,7 +39,7 @@ The `/skills-hub` command is the unified entry point for all Claude Code skills.
 | **suggest** | Actionable code improvements with diffs | "How can this be better?", "Review this code" |
 | **brainstorm** | Multi-perspective debates (3 AI agents) | Design decisions, architecture, trade-offs |
 | **update** | Modernize code with fresh documentation | Outdated deps, deprecated APIs, migrations |
-| **grounded** | Verify volatile knowledge, trust stable | Current events, new APIs, time-sensitive info |
+| **verify** | Verify volatile knowledge, trust stable | Current events, new APIs, time-sensitive info |
 | **write-for-claude** | Generate Claude-optimized instructions | CLAUDE.md, SKILL.md, AGENTS.md, prompts |
 
 ## Core Features
@@ -72,7 +72,7 @@ Connect skills with "then" for sequential workflows:
 /skills-hub brainstorm caching strategy then suggest implementation
 
 # Verify, then modernize
-/skills-hub grounded React Query v5 patterns then update src/hooks/
+/skills-hub verify React Query v5 patterns then update src/hooks/
 ```
 
 ### Parallel Execution
@@ -182,7 +182,7 @@ Context flows between chained skills automatically. The output of one skill info
 **Good chains:**
 - explain → suggest (understand before improving)
 - brainstorm → suggest (decide then implement)
-- grounded → update (verify then modernize)
+- verify → update (verify then modernize)
 - brainstorm → write-for-claude (decide then document)
 
 **Avoid:**

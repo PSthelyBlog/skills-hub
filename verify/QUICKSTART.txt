@@ -1,18 +1,18 @@
 ╔══════════════════════════════════════════════════════════════════════════════╗
-║                         /GROUNDED SKILL - QUICK START                        ║
+║                          /VERIFY SKILL - QUICK START                         ║
 ║                       Production-Ready for Claude Code                       ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 
 📦 INSTALLATION
 ─────────────────────────────────────────────────────────────────────────────
-  cp -r grounded ~/.claude/skills/
+  cp -r verify ~/.claude/skills/
 
 
 🚀 BASIC USAGE
 ─────────────────────────────────────────────────────────────────────────────
-  /grounded create a Next.js app with auth        # Verifies current APIs
-  /grounded what are current GDPR requirements    # Verifies regulations
-  /grounded explain the quicksort algorithm       # Trusts stable knowledge
+  /verify create a Next.js app with auth        # Verifies current APIs
+  /verify what are current GDPR requirements    # Verifies regulations
+  /verify explain the quicksort algorithm       # Trusts stable knowledge
 
 
 ⚡ HOW IT WORKS
@@ -80,11 +80,11 @@
 
 🎯 USE CASES
 ─────────────────────────────────────────────────────────────────────────────
-  Technology setup    →  /grounded configure AWS Lambda with Node 20
-  Regulations         →  /grounded GDPR cookie consent requirements
-  Medical info        →  /grounded current treatment for Type 2 diabetes
-  Current events      →  /grounded latest EU AI Act developments
-  Mixed queries       →  /grounded neural networks + latest architectures
+  Technology setup    →  /verify configure AWS Lambda with Node 20
+  Regulations         →  /verify GDPR cookie consent requirements
+  Medical info        →  /verify current treatment for Type 2 diabetes
+  Current events      →  /verify latest EU AI Act developments
+  Mixed queries       →  /verify neural networks + latest architectures
 
 
 ⚠️ HIGH-STAKES QUERIES
@@ -98,7 +98,7 @@
 
 🛠️ TROUBLESHOOTING
 ─────────────────────────────────────────────────────────────────────────────
-  Skill not found?    →  Check: ls ~/.claude/skills/grounded/SKILL.md
+  Skill not found?    →  Check: ls ~/.claude/skills/verify/SKILL.md
   No verification?    →  Add volatility signals: "latest," "current," year
   Slow responses?     →  Verification takes time for accuracy
 
@@ -125,12 +125,12 @@
 
 🏆 SUCCESS METRICS
 ─────────────────────────────────────────────────────────────────────────────
-  Good grounded response:
+  Good verify response:
   - Correctly identifies volatile vs. stable knowledge
   - Shows clear reasoning in Knowledge Assessment
   - Points to authoritative sources when appropriate
 
-  Great grounded response:
+  Great verify response:
   - Catches outdated training knowledge before stating it
   - Efficiently trusts stable knowledge without over-verifying
   - User understands exactly what was verified and why
@@ -150,6 +150,6 @@
 
 ═══════════════════════════════════════════════════════════════════════════════
 
-  Ready to use! Type:  /grounded [your query]
+  Ready to use! Type:  /verify [your query]
 
 ═══════════════════════════════════════════════════════════════════════════════

@@ -2,7 +2,7 @@
 
 ## Problem Statement
 
-Users have access to multiple specialized skills (explain, suggest, brainstorm, update, grounded, write-for-claude), but:
+Users have access to multiple specialized skills (explain, suggest, brainstorm, update, verify, write-for-claude), but:
 
 1. **Discovery overhead** - Users must know which skill exists for their need
 2. **Syntax friction** - Each skill has different invocation patterns
@@ -91,7 +91,7 @@ A meta-skill that acts as an intelligent router and orchestrator.
 ```
 explain → suggest  (understand then improve)
 brainstorm → write-for-claude  (decide then document)
-grounded → update  (verify then modernize)
+verify → update  (verify then modernize)
 ```
 
 ### 4. Parallel Execution When Possible
@@ -155,13 +155,13 @@ Subagent 1 (isolated)        Subagent 2 (isolated)
 
 ## Skill Compatibility Matrix
 
-| First Skill | → explain | → suggest | → brainstorm | → update | → grounded | → write-for-claude |
+| First Skill | → explain | → suggest | → brainstorm | → update | → verify | → write-for-claude |
 |-------------|-----------|-----------|--------------|----------|------------|-------------------|
 | explain     | -         | ✓ Common  | ✓ Good       | △ Rare   | △ Rare     | ✓ Good            |
 | suggest     | △ Rare    | -         | △ Rare       | △ Rare   | △ Rare     | ✓ Good            |
 | brainstorm  | △ Rare    | ✓ Good    | -            | △ Rare   | △ Rare     | ✓ Common          |
 | update      | △ Rare    | ✓ Good    | △ Rare       | -        | △ Rare     | △ Rare            |
-| grounded    | ✓ Good    | △ Rare    | ✓ Good       | ✓ Common | -          | ✓ Good            |
+| verify    | ✓ Good    | △ Rare    | ✓ Good       | ✓ Common | -          | ✓ Good            |
 | write-for-claude | △ Rare | △ Rare   | △ Rare       | △ Rare   | △ Rare     | -                 |
 
 Legend: ✓ Common/recommended, △ Possible but uncommon, - Same skill

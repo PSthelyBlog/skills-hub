@@ -6,7 +6,7 @@ Quick guide to installing the `/skills-hub` skill in Claude Code.
 
 - Claude Code CLI installed
 - Basic familiarity with Claude Code skills system
-- Other skills installed (explain, suggest, brainstorm, update, grounded, write-for-claude)
+- Other skills installed (explain, suggest, brainstorm, update, verify, write-for-claude)
 
 ## Installation Steps
 
@@ -75,7 +75,7 @@ cp -r explain ~/.claude/skills/
 cp -r suggest ~/.claude/skills/
 cp -r brainstorm ~/.claude/skills/
 cp -r update ~/.claude/skills/
-cp -r grounded ~/.claude/skills/
+cp -r verify ~/.claude/skills/
 cp -r write-for-claude ~/.claude/skills/
 ```
 

@@ -8,7 +8,7 @@ A collection of Claude Code skills for enhanced AI-assisted development workflow
 |-------|-------------|
 | **[brainstorm](./brainstorm/)** | Multi-agent deliberation with 3 parallel perspectives debating solutions |
 | **[explain](./explain/)** | Deep code explanation and documentation |
-| **[grounded](./grounded/)** | Web search-grounded responses with citations |
+| **[verify](./verify/)** | Verify volatile knowledge, trust stable knowledge |
 | **[suggest](./suggest/)** | Intelligent code improvement suggestions |
 | **[update](./update/)** | Automated code modernization and updates |
 | **[write-for-claude](./write-for-claude/)** | Generate Claude-optimized documentation |
@@ -36,7 +36,7 @@ After installation, invoke skills using Claude Code's slash commands:
 /explain src/api.ts
 /suggest --category security src/
 /brainstorm "Should we use REST or GraphQL?"
-/grounded "What are the latest React 19 features?"
+/verify "What are the latest React 19 features?"
 ```
 
 ### Skills Hub (Meta-Skill)

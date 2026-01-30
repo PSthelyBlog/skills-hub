@@ -1,4 +1,4 @@
-# Grounded Skill - Examples
+# Verify Skill - Examples
 
 Real-world examples across domains showing epistemic calibration in action.
 
@@ -9,7 +9,7 @@ Real-world examples across domains showing epistemic calibration in action.
 ### Example 1: Full-Stack Setup (Heavy Verification)
 
 ```
-User: /grounded create a Next.js app with Prisma and NextAuth
+User: /verify create a Next.js app with Prisma and NextAuth
 
 Claude:
 ## Knowledge Assessment
@@ -39,7 +39,7 @@ Claude:
 ### Example 2: Algorithm Question (Trust Training)
 
 ```
-User: /grounded implement a binary search tree with insert and delete
+User: /verify implement a binary search tree with insert and delete
 
 Claude:
 ## Knowledge Assessment
@@ -64,7 +64,7 @@ They don't have versions, updates, or breaking changes.
 ### Example 3: Cloud Configuration (Verify Specifics)
 
 ```
-User: /grounded set up AWS Lambda with Node.js and API Gateway
+User: /verify set up AWS Lambda with Node.js and API Gateway
 
 Claude:
 ## Knowledge Assessment
@@ -98,7 +98,7 @@ Claude:
 ### Example 4: Privacy Regulation (Verify Current State)
 
 ```
-User: /grounded what are the CCPA requirements for my SaaS app
+User: /verify what are the CCPA requirements for my SaaS app
 
 Claude:
 ## Knowledge Assessment
@@ -132,7 +132,7 @@ Claude:
 ### Example 5: Tax Question (Verify + Disclaim)
 
 ```
-User: /grounded what's the current capital gains tax rate in the US
+User: /verify what's the current capital gains tax rate in the US
 
 Claude:
 ## Knowledge Assessment
@@ -168,7 +168,7 @@ Claude:
 ### Example 6: Medical Guidelines (Verify + Strong Disclaimer)
 
 ```
-User: /grounded what are the current blood pressure guidelines
+User: /verify what are the current blood pressure guidelines
 
 Claude:
 ## Knowledge Assessment
@@ -205,7 +205,7 @@ Blood pressure management is individual and depends on many factors.
 ### Example 7: Basic Biology (Trust Training)
 
 ```
-User: /grounded explain how DNA replication works
+User: /verify explain how DNA replication works
 
 Claude:
 ## Knowledge Assessment
@@ -230,7 +230,7 @@ of DNA replication was elucidated decades ago and doesn't change.
 ### Example 8: Active Research Area (Mixed)
 
 ```
-User: /grounded what's the current understanding of long COVID
+User: /verify what's the current understanding of long COVID
 
 Claude:
 ## Knowledge Assessment
@@ -271,7 +271,7 @@ Understanding continues to develop.
 ### Example 9: Post-Cutoff Event (Must Verify)
 
 ```
-User: /grounded what's the current status of the EU AI Act
+User: /verify what's the current status of the EU AI Act
 
 Claude:
 ## Knowledge Assessment
@@ -304,7 +304,7 @@ Claude:
 ### Example 10: Historical Context (Trust Training)
 
 ```
-User: /grounded explain the causes of World War I
+User: /verify explain the causes of World War I
 
 Claude:
 ## Knowledge Assessment
@@ -335,7 +335,7 @@ don't change.
 ### Example 11: SaaS Product Capabilities (Verify)
 
 ```
-User: /grounded what are Notion's current AI features
+User: /verify what are Notion's current AI features
 
 Claude:
 ## Knowledge Assessment
@@ -361,7 +361,7 @@ Check notion.so for the most current capabilities and pricing.
 ### Example 12: API Capabilities (Verify)
 
 ```
-User: /grounded what models are available in the OpenAI API
+User: /verify what models are available in the OpenAI API
 
 Claude:
 ## Knowledge Assessment
@@ -395,7 +395,7 @@ Check official documentation for current status.
 ### Example 13: Evolving Best Practice (Judgment)
 
 ```
-User: /grounded what's the best way to structure a React application
+User: /verify what's the best way to structure a React application
 
 Claude:
 ## Knowledge Assessment
@@ -424,7 +424,7 @@ community patterns while grounding advice in established principles.
 ### Example 14: Statistics Request (Verify Numbers)
 
 ```
-User: /grounded what's the current US inflation rate
+User: /verify what's the current US inflation rate
 
 Claude:
 ## Knowledge Assessment
@@ -453,7 +453,7 @@ This reflects the most recent available data as of [date].
 ### Example 15: Mixed Historical + Current
 
 ```
-User: /grounded explain the Israeli-Palestinian conflict
+User: /verify explain the Israeli-Palestinian conflict
 
 Claude:
 ## Knowledge Assessment

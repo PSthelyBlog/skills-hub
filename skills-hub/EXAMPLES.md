@@ -18,7 +18,7 @@
 /skills-hub update src/hooks/useAuth.ts
 
 # Verify current information
-/skills-hub grounded what are the React 19 breaking changes
+/skills-hub verify what are the React 19 breaking changes
 
 # Generate instructions
 /skills-hub write-for-claude create a CLAUDE.md for this project
@@ -48,7 +48,7 @@ The hub infers the skill from natural language:
 /skills-hub modernize the React Query hooks to latest version
 /skills-hub upgrade the authentication to use the new Supabase patterns
 
-# Routed to grounded
+# Routed to verify
 /skills-hub what's the current Next.js App Router best practice
 /skills-hub are there any recent security advisories for lodash
 
@@ -170,15 +170,15 @@ Brainstorm concluded Redis with 5-min TTL is the right approach.
 Implementation requires cache wrapper, invalidation hooks, and monitoring.
 ```
 
-### grounded → update (Verify, then modernize)
+### verify → update (Verify, then modernize)
 
 ```bash
-/skills-hub grounded check React Query v5 migration requirements then update src/hooks/useData.ts
+/skills-hub verify check React Query v5 migration requirements then update src/hooks/useData.ts
 
 # Output:
-## Workflow: grounded → update
+## Workflow: verify → update
 
-### grounded: React Query v5 Migration
+### verify: React Query v5 Migration
 
 **Verified (volatile technology info):**
 - Package renamed: react-query → @tanstack/react-query
@@ -285,7 +285,7 @@ All flags pass through to the target skill:
 
 ```bash
 # Step 1: Check current best practices
-/skills-hub grounded what are the latest Express.js security best practices
+/skills-hub verify what are the latest Express.js security best practices
 
 # Step 2: Brainstorm approach
 /skills-hub brainstorm how to modernize our Express middleware
@@ -324,7 +324,7 @@ Available skills:
 - suggest — get improvement recommendations
 - brainstorm — explore options from multiple perspectives
 - update — modernize with current documentation
-- grounded — verify time-sensitive information
+- verify — verify time-sensitive information
 - write-for-claude — generate Claude-optimized instructions
 
 Did you mean: explain (to understand what's happening)?
@@ -376,7 +376,7 @@ Which would you like?
 ✅ Good chains:
 - explain → suggest (understand before improving)
 - brainstorm → write-for-claude (decide then document)
-- grounded → update (verify before modernizing)
+- verify → update (verify before modernizing)
 
 ❌ Avoid:
 - suggest → explain (improving before understanding)
@@ -404,6 +404,6 @@ Which would you like?
 | "What does this code do?" | explain |
 | "What's wrong with this code?" | suggest |
 | "Should we use X or Y?" | brainstorm |
-| "Is this API still current?" | grounded |
+| "Is this API still current?" | verify |
 | "Update to latest version" | update |
 | "Document this for the team" | write-for-claude |

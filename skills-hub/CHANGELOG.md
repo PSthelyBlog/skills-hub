@@ -5,6 +5,12 @@ All notable changes to the **skills-hub** skill will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2025-01-30
+
+### Changed
+- Renamed `grounded` skill to `verify` in all references
+- Updated routing decision tree, skill tables, and examples to use `verify`
+
 ## [1.2.0] - 2025-01-29
 
 ### Changed
@@ -45,6 +51,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Skill chaining with "then" keyword
 - Parallel execution for independent skills
 - Context isolation via Task subagents
-- Support for all skills: explain, suggest, brainstorm, update, grounded, write-for-claude
+- Support for all skills: explain, suggest, brainstorm, update, verify, write-for-claude
 - Special handling for brainstorm (cannot be delegated)
 - Result synthesis for chained/parallel workflows
