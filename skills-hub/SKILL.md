@@ -3,7 +3,7 @@
 ---
 name: skills-hub
 description: "Route requests to specialized skills, chain outputs for multi-step workflows"
-version: 1.2.0
+version: 1.3.1
 author: PSthelyBlog
 tags: [orchestration, router, meta-skill, delegation]
 model: sonnet
@@ -129,7 +129,7 @@ Task(
 
     [user's arguments/query]
 
-    Follow the skill protocol defined in ./skills-hub/[skill-name]/SKILL.md
+    Follow the skill protocol defined in ./[skill-name]/SKILL.md
 
     Return only the final output formatted according to the skill's output format.
   """
@@ -141,7 +141,7 @@ Task(
 WHEN routing to brainstorm:
   MUST NOT: Delegate via Task
   MUST: Execute brainstorm protocol directly in main session
-  MUST: Read ./skills-hub/brainstorm/SKILL.md and follow its protocol
+  MUST: Read ./brainstorm/SKILL.md and follow its protocol
 
 #### 3.4 Chained Execution
 
@@ -164,7 +164,7 @@ ELSE:
       [user's query for this skill]
 
       Use the context above to inform your analysis.
-      Follow the skill protocol in ./skills-hub/[skill-name]/SKILL.md
+      Follow the skill protocol in ./[skill-name]/SKILL.md
     """
   )
 ```

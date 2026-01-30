@@ -46,7 +46,7 @@ Before answering, assess knowledge volatility:
 - Trust training: Math, history, core concepts, stable language features
 - Show reasoning: Explain what was verified and why
 
-See: ./verify/SKILL.md for full protocol
+See: ./SKILL.md for full protocol
 ```
 
 ## Verifying Installation

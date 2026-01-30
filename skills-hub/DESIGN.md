@@ -196,7 +196,7 @@ MUST: Offer actionable next steps
 
 ### Adding New Skills
 
-1. Create `./skills-hub/[skill-name]/SKILL.md`
+1. Create `./[skill-name]/SKILL.md`
 2. Add entry to hub's skill table
 3. Add intent patterns for routing
 4. Add to compatibility matrix

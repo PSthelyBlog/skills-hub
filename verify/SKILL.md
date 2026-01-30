@@ -3,7 +3,7 @@
 ---
 name: verify
 description: "Verify volatile knowledge, trust stable knowledge — epistemic calibration for accurate responses"
-version: 1.3.0
+version: 1.3.1
 author: PSthelyBlog
 tags: [knowledge, verification, accuracy, current-information, metacognition]
 model: sonnet

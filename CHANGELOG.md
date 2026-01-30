@@ -5,6 +5,13 @@ All notable changes to the **skills-hub** repository will be documented in this 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.1] - 2025-01-30
+
+### Fixed
+- **skills-hub**: Corrected skill path references from `./skills-hub/[skill-name]/` to `./[skill-name]/` in SKILL.md and DESIGN.md
+- **verify**: Fixed self-reference path in INSTALL.md from `./verify/SKILL.md` to `./SKILL.md`
+- **README.md**: Fixed install example path from `skills-hub/brainstorm/INSTALL.md` to `brainstorm/INSTALL.md`
+
 ## [1.3.0] - 2025-01-30
 
 ### Changed

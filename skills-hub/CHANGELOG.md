@@ -5,6 +5,13 @@ All notable changes to the **skills-hub** skill will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.1] - 2025-01-30
+
+### Fixed
+- Corrected skill path references from `./skills-hub/[skill-name]/` to `./[skill-name]/` in SKILL.md
+- Corrected skill path reference in DESIGN.md "Adding New Skills" section
+- Skills are located at root level, not inside skills-hub directory
+
 ## [1.3.0] - 2025-01-30
 
 ### Changed

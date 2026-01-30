@@ -25,7 +25,7 @@ Each skill can be installed individually. See the `INSTALL.md` in each skill dir
 git clone https://github.com/PSthelyBlog/skills-hub.git
 
 # Install a specific skill (example: brainstorm)
-cat skills-hub/brainstorm/INSTALL.md
+cat brainstorm/INSTALL.md
 ```
 
 ## Usage
